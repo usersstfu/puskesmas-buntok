@@ -139,7 +139,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        <!-- User's information card -->
+
         @if ($nomorAntrian)
             <div class="card mb-4">
                 <div class="card-body text-center">
@@ -166,6 +166,7 @@
                 </div>
             </div>
         @endif
+
         <div class="row">
             @foreach ($currentQueues as $ruangan => $currentQueue)
                 <div class="col-lg-6">
@@ -204,6 +205,7 @@
             @endforeach
         </div>
     </div>
+
     <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
         <div class="container py-5">
             <div class="row g-5">

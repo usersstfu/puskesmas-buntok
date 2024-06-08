@@ -11,9 +11,11 @@ class NomorAntrian extends Model
 
     protected $table = 'nomorantrian';
 
-    protected $fillable = ['nama', 'nik', 'ruangan', 'nomor', 'status', 'waktu', 'prioritas', 'status_prioritas'];
+    protected $fillable = ['nama', 'nik', 'ruangan', 'nomor', 'status', 'waktu', 'prioritas', 'status_prioritas', 'waktu_dilayani', 'waktu_total_sistem', 'riwayat_waktu'];
 
     protected $casts = [
         'status_prioritas' => 'array',
+        'riwayat_waktu' => 'array',
     ];
+
 }

@@ -14,7 +14,9 @@ use App\Http\Controllers\DaftarAntrianController;
 use App\Http\Controllers\LihatAntrianController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\SimulasiController;
+use App\Http\Controllers\MachineLearningController;
+use App\Http\Controllers\PredicitionController;
 
 Route::get('/', function () {
     return view('home');
@@ -53,6 +55,15 @@ Route::post('/proses-daftar', [DaftarAntrianController::class, 'prosesDaftar'])-
 // Login Admin
 Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+
+// Simulasi Nomor Antrian dan Prediksi
+Route::get('/generate-nomor-antrian', [SimulasiController::class, 'generateNomorAntrian'])->name('generate-nomor-antrian');
+Route::get('/tampilkan-antrian', [SimulasiController::class, 'tampilkanDataAntrian'])->name('tampilkan-antrian');
+Route::get('/update-waktu-antrian', [SimulasiController::class, 'updateWaktuAntrian'])->name('update-waktu-antrian');
+Route::get('/ekspor-data-antrian', [SimulasiController::class, 'eksporDataAntrianKeCsv'])->name('ekspor-data-antrian');
+Route::get('/tampilkan-latihan', [MachineLearningController::class, 'showTrainForm']);
+Route::post('/train-model', [MachineLearningController::class, 'train']);
+Route::post('/predict', [MachineLearningController::class, 'predict']);
 
 // Sistem Antrian
 Route::middleware('auth:admin')->group(function () {

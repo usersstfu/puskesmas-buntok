@@ -18,7 +18,7 @@ class CreateNomorantrianTable extends Migration
             $table->string('nama');
             $table->string('nik');
             $table->string('ruangan');
-            $table->unsignedInteger('nomor');
+            $table->string('nomor');
             $table->timestamps();
         });
     }

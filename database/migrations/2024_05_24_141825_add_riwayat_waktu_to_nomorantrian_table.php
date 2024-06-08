@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTimeToNomorantrianTable extends Migration
+class AddRiwayatWaktuToNomorantrianTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddTimeToNomorantrianTable extends Migration
     public function up()
     {
         Schema::table('nomorantrian', function (Blueprint $table) {
-            $table->json('waktu')->nullable()->after('status');
+            $table->json('riwayat_waktu')->nullable()->after('waktu_total_sistem');
         });
     }
 
@@ -26,7 +26,7 @@ class AddTimeToNomorantrianTable extends Migration
     public function down()
     {
         Schema::table('nomorantrian', function (Blueprint $table) {
-            $table->dropColumn('waktu');
+            $table->dropColumn('riwayat_waktu');
         });
     }
 }
