@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Kontak Kami - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -72,7 +73,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>
@@ -141,61 +141,68 @@
                 <div class="sub-style mb-4">
                     <h4 class="sub-title text-white px-3 mb-0">Hubungi Kami</h4>
                 </div>
-                <h5 class="mb-0">Jika Anda memiliki pertanyaan atau ingin berhubungan dengan kami,
-                    jangan ragu untuk menghubungi kami melalui informasi di bawah ini.</h>
+                <h4 class="my-2">Jika Anda memiliki pertanyaan atau ingin berhubungan dengan kami,
+                    jangan ragu untuk menghubungi kami melalui informasi di bawah ini.</h4>
             </div>
             <div class="row g-4 align-items-center">
                 <div class="col-lg-5 col-xl-5 contact-form wow fadeInLeft" data-wow-delay="0.1s">
-                    <h2 class="display-5 text-white mb-2">Get in Touch</h2>
-                    <p class="mb-4 text-white">The contact form is currently inactive. Get a functional and working
-                        contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code
-                        and you're done. </p>
-                    <form>
+                    <h2 class="display-5 text-white mb-2">Kirim Ajuan atau Keluhan Anda</h2>
+                    <p class="mb-4 text-white">Jika Anda memiliki pertanyaan, ajuan, atau keluhan, silakan isi formulir
+                        di bawah ini dan kami akan segera merespon. Terima kasih telah menghubungi Puskesmas Buntok.</p>
+                    @if (session('success'))
+                        <div class="alert alert-success mt-3">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.store') }}" method="POST">
+                        @csrf
                         <div class="row g-3">
                             <div class="col-lg-12 col-xl-6">
                                 <div class="form-floating">
                                     <input type="text" class="form-control bg-transparent border border-white"
-                                        id="name" placeholder="Your Name">
-                                    <label for="name">Your Name</label>
+                                        id="name" name="name" placeholder="Your Name" required>
+                                    <label for="name">Nama Anda</label>
                                 </div>
                             </div>
                             <div class="col-lg-12 col-xl-6">
                                 <div class="form-floating">
                                     <input type="email" class="form-control bg-transparent border border-white"
-                                        id="email" placeholder="Your Email">
-                                    <label for="email">Your Email</label>
+                                        id="email" name="email" placeholder="Your Email" required>
+                                    <label for="email">Email Anda</label>
                                 </div>
                             </div>
                             <div class="col-lg-12 col-xl-6">
                                 <div class="form-floating">
                                     <input type="phone" class="form-control bg-transparent border border-white"
-                                        id="phone" placeholder="Phone">
-                                    <label for="phone">Your Phone</label>
+                                        id="phone" name="phone" placeholder="Phone">
+                                    <label for="phone">No. Hp Anda</label>
                                 </div>
                             </div>
                             <div class="col-lg-12 col-xl-6">
                                 <div class="form-floating">
                                     <input type="text" class="form-control bg-transparent border border-white"
-                                        id="project" placeholder="Project">
-                                    <label for="project">Your Project</label>
+                                        id="project" name="project" placeholder="Project">
+                                    <label for="project">Alamat Anda</label>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-floating">
                                     <input type="text" class="form-control bg-transparent border border-white"
-                                        id="subject" placeholder="Subject">
-                                    <label for="subject">Subject</label>
+                                        id="subject" name="subject" placeholder="Subject" required>
+                                    <label for="subject">Subjek Ajuan atau Keluhan Anda</label>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-floating">
                                     <textarea class="form-control bg-transparent border border-white" placeholder="Leave a message here" id="message"
-                                        style="height: 160px"></textarea>
-                                    <label for="message">Message</label>
+                                        name="message" style="height: 160px" required></textarea>
+                                    <label for="message">Pesan</label>
                                 </div>
                             </div>
                             <div class="col-12">
-                                <button class="btn btn-light text-primary w-100 py-3">Send Message</button>
+                                <button class="btn btn-light text-primary w-100 py-3" type="submit">Kirim
+                                    Pesan</button>
                             </div>
                         </div>
                     </form>

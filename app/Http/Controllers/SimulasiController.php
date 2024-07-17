@@ -19,7 +19,7 @@ class SimulasiController extends Controller
     {
         $antrian = NomorAntrian::all();
 
-        $filename = "data_antrian.csv";
+        $filename = "data_antrian_baru.csv";
         $handle = fopen($filename, 'w+');
         fputcsv($handle, [
             'nomor', 'ruangan', 'status_prioritas', 'nama', 'nik',
@@ -36,7 +36,7 @@ class SimulasiController extends Controller
                 $row->nik,
                 $row->waktu,
                 $row->status,
-                $row->created_at->format('Y-m-d H:i:s'), 
+                $row->created_at->format('Y-m-d H:i:s'),
                 $row->updated_at->format('Y-m-d H:i:s'),
                 $row->waktu_dilayani,
                 $row->waktu_total_sistem,
@@ -135,27 +135,38 @@ class SimulasiController extends Controller
         $currentDate = $lastAntrian ? Carbon::parse($lastAntrian->created_at)->addDay()->format('Y-m-d') : Carbon::now()->format('Y-m-d');
 
         $ruanganList = [
-            'poli_umum' => ['min' => 60, 'max' => 80],
-            'poli_gigi' => ['min' => 5, 'max' => 10],
-            'poli_kia'  => ['min' => 10, 'max' => 15],
-            'poli_anak' => ['min' => 10, 'max' => 15],
-            'lab'       => ['min' => 2, 'max' => 5],
-            'apotik'    => ['min' => 5, 'max' => 8],
+            'poli_umum' => ['min' => 60, 'max' => 80, 'prioritas_usia' => [5, 10], 'prioritas_didahulukan' => [0, 5]],
+            'poli_gigi' => ['min' => 5, 'max' => 10, 'prioritas_usia' => [2, 3], 'prioritas_didahulukan' => [0, 2]],
+            'poli_kia'  => ['min' => 10, 'max' => 15, 'prioritas_usia' => [3, 5], 'prioritas_didahulukan' => [0, 3]],
+            'poli_anak' => ['min' => 10, 'max' => 15, 'prioritas_usia' => [3, 5], 'prioritas_didahulukan' => [0, 3]],
+            'lab'       => ['min' => 2, 'max' => 5, 'prioritas_usia' => [1, 3], 'prioritas_didahulukan' => [0, 2]],
+            'apotik'    => ['min' => 5, 'max' => 8, 'prioritas_usia' => [1, 3], 'prioritas_didahulukan' => [0, 2]],
         ];
 
-        foreach ($ruanganList as $ruangan => $range) {
-            $jumlahAntrian = mt_rand($range['min'], $range['max']);
+        foreach ($ruanganList as $ruangan => $details) {
+            $jumlahAntrian = mt_rand($details['min'], $details['max']);
+            $prioritasUsiaCount = mt_rand($details['prioritas_usia'][0], $details['prioritas_usia'][1]);
+            $prioritasDidahulukanCount = mt_rand($details['prioritas_didahulukan'][0], $details['prioritas_didahulukan'][1]);
             for ($i = 1; $i <= $jumlahAntrian; $i++) {
                 $nomorAntrian = new NomorAntrian();
                 $nomorAntrian->nomor = $this->generateNomor($ruangan, $i);
                 $nomorAntrian->ruangan = $ruangan;
-                $nomorAntrian->status_prioritas = 1;
                 $nomorAntrian->nama = $this->generateRandomName();
                 $nomorAntrian->nik = $this->generateRandomNIK();
                 $nomorAntrian->waktu = 0;
                 $nomorAntrian->status = 'sedang_antri';
                 $nomorAntrian->created_at = $currentDate;
                 $nomorAntrian->updated_at = $currentDate;
+                if ($i <= $prioritasUsiaCount) {
+                    $nomorAntrian->status_prioritas = 10;
+                    $nomorAntrian->prioritas = 'Usia';
+                } elseif ($i <= ($prioritasUsiaCount + $prioritasDidahulukanCount)) {
+                    $nomorAntrian->status_prioritas = 20;
+                    $nomorAntrian->prioritas = 'Didahulukan';
+                } else {
+                    $nomorAntrian->status_prioritas = 1;
+                    $nomorAntrian->prioritas = 'Umum';
+                }
                 $nomorAntrian->save();
 
                 session()->put("ruangan_asal_{$nomorAntrian->id}", $ruangan);
@@ -174,11 +185,10 @@ class SimulasiController extends Controller
 
     public function updateWaktuAntrian()
     {
-        $antrian = NomorAntrian::orderBy('nomor')->get(); // Pastikan urutan antrian berdasarkan nomor
+        $antrian = NomorAntrian::orderBy('nomor')->get();
 
         foreach ($antrian as $dataAntrian) {
             if ($dataAntrian->status === 'sedang_antri') {
-                // Hitung waktu tunggu berdasarkan waktu dilayani antrian sebelumnya
                 $waktu_tunggu = $this->calculateWaitingTime($dataAntrian);
                 $dataAntrian->waktu = $waktu_tunggu;
             } elseif ($dataAntrian->status === 'sedang_dilayani') {
@@ -202,16 +212,14 @@ class SimulasiController extends Controller
 
     private function calculateWaitingTime($dataAntrian)
     {
-        // Dapatkan semua antrian sebelum antrian saat ini di ruangan yang sama
         $previousAntrians = NomorAntrian::where('ruangan', $dataAntrian->ruangan)
             ->where('nomor', '<', $dataAntrian->nomor)
-            ->where('status', '!=', 'sedang_antri') // Hanya hitung antrian yang sudah atau sedang dilayani
+            ->where('status', '!=', 'sedang_antri')
             ->get();
 
         $totalWaitingTime = 0;
 
         foreach ($previousAntrians as $antrian) {
-            // Tambahkan waktu dilayani untuk setiap antrian sebelumnya
             $totalWaitingTime += $antrian->waktu_dilayani;
         }
 
@@ -225,53 +233,48 @@ class SimulasiController extends Controller
         $this->saveTransitionHistory($dataAntrian);
 
         if (strpos($dataAntrian->ruangan, 'poli_') === 0) {
-            if ($dataAntrian->status_prioritas === 1) {
-                $dataAntrian->status_prioritas++;
+            if (!session()->has("returned_from_lab_{$dataAntrian->id}")) {
                 $dataAntrian->ruangan = 'lab';
-                $dataAntrian->status = 'sedang_antri';
-            } elseif ($dataAntrian->status_prioritas === 3) {
-                $dataAntrian->status_prioritas++;
+            } else {
                 $dataAntrian->ruangan = 'apotik';
-                $dataAntrian->status = 'sedang_antri';
+                session()->forget("returned_from_lab_{$dataAntrian->id}"); 
             }
-        } elseif ($dataAntrian->ruangan === 'lab' || $dataAntrian->ruangan === 'apotik') {
-            if ($dataAntrian->ruangan === 'lab') {
-                if ($ruanganAsal === 'lab') {
-                    $dataAntrian->status = 'sudah_dilayani';
-                    $this->updateWaktuTotalSistem($dataAntrian);
-                } else {
-                    $dataAntrian->status_prioritas++;
-                    $dataAntrian->ruangan = $ruanganAsal;
-                    $dataAntrian->status = 'sedang_antri';
-                }
-            } elseif ($dataAntrian->ruangan === 'apotik') {
-                if ($ruanganAsal === 'apotik') {
-                    $dataAntrian->status = 'sudah_dilayani';
-                    $this->updateWaktuTotalSistem($dataAntrian);
-                } else {
-                    if ($dataAntrian->status_prioritas === 2 || $dataAntrian->status_prioritas === 4) {
-                        $dataAntrian->status = 'sudah_dilayani';
-                        $dataAntrian->ruangan = $ruanganAsal;
-                        $this->updateWaktuTotalSistem($dataAntrian);
-                    } else {
-                        $dataAntrian->status_prioritas++;
-                        $dataAntrian->ruangan = $ruanganAsal;
-                        $dataAntrian->status = 'sedang_antri';
-                    }
-                }
+        } elseif ($dataAntrian->ruangan === 'lab') {
+            if ($ruanganAsal !== 'lab') {
+                session()->put("returned_from_lab_{$dataAntrian->id}", true);
+                $dataAntrian->ruangan = $ruanganAsal;
+            } else {
+                $dataAntrian->status = 'sudah_dilayani';
+                $this->updateWaktuTotalSistem($dataAntrian);
+                $dataAntrian->ruangan = $ruanganAsal;
             }
+        } elseif ($dataAntrian->ruangan === 'apotik') {
+            $dataAntrian->status = 'sudah_dilayani';
+            $this->updateWaktuTotalSistem($dataAntrian);
+            $dataAntrian->ruangan = $ruanganAsal;
         }
+
+        $dataAntrian->status_prioritas += 1;
 
         $dataAntrian->waktu_dilayani = 0;
         $dataAntrian->updated_at = now();
         $dataAntrian->save();
 
-        $this->startQueue($dataAntrian->ruangan);
-
-        if (!is_null($ruanganAsal)) {
-            $this->startQueue($ruanganAsal);
+        if ($dataAntrian->status !== 'sudah_dilayani') {
+            $this->startQueue($dataAntrian->ruangan);
+        } else {
+            $this->returnToOriginalRoom($dataAntrian);
         }
     }
+
+    private function returnToOriginalRoom($dataAntrian)
+    {
+        $ruanganAsal = session()->get("ruangan_asal_{$dataAntrian->id}");
+        $dataAntrian->ruangan = $ruanganAsal;
+        $dataAntrian->status = 'sudah_dilayani';
+        $dataAntrian->save();
+    }
+
 
     private function updateWaktuTotalSistem($dataAntrian)
     {
@@ -309,32 +312,27 @@ class SimulasiController extends Controller
 
     private function startQueue($ruangan)
     {
-        // Cek apakah ada antrian yang sedang dilayani di ruangan tertentu
         $currentlyServing = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'sedang_dilayani')
             ->exists();
 
         if (!$currentlyServing) {
-            // Pilih antrian berikutnya yang sedang dalam status 'sedang_antri' berdasarkan status_prioritas dan updated_at
             $nextQueue = NomorAntrian::where('ruangan', $ruangan)
                 ->where('status', 'sedang_antri')
-                ->orderBy('status_prioritas', 'desc') // Urutkan berdasarkan status_prioritas tertinggi
-                ->orderBy('updated_at') // Urutkan berdasarkan waktu pembaruan terawal
+                ->orderBy('status_prioritas', 'desc') 
+                ->orderBy('updated_at') 
                 ->first();
 
             if ($nextQueue) {
-                // Perbarui status antrian menjadi 'sedang_dilayani' dan waktu_dilayani menjadi 0
                 $nextQueue->update([
                     'status' => 'sedang_dilayani',
                     'waktu_dilayani' => 0,
-                    'start_served_at' => now() // Simpan waktu mulai dilayani
+                    'start_served_at' => now()
                 ]);
 
-                // Hitung waktu selesai dilayani berdasarkan durasi waktu yang diperoleh dari fungsi getDurasiWaktu($ruangan)
                 $durasi_waktu = $this->getDurasiWaktu($ruangan);
                 $waktu_selesai_dilayani = now()->addSeconds($durasi_waktu);
 
-                // Simpan waktu selesai dilayani dalam sesi
                 session(['waktu_selesai_dilayani' => $waktu_selesai_dilayani]);
             }
         }

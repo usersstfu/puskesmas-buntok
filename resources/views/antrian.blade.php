@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Sistem Antrian - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -30,13 +31,9 @@
         }
 
         .card {
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
         }
 
         .card a {
@@ -44,7 +41,7 @@
             text-align: center;
             margin: 10px 0;
             padding: 5px;
-            background-color: #007bff;
+            background-color: white;
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
@@ -55,8 +52,15 @@
             padding: 10px;
             border-radius: 5px;
         }
-    </style>
 
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .dropdown-item {
+            cursor: pointer;
+        }
+    </style>
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -108,7 +112,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>
@@ -170,48 +173,44 @@
 
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h2 class="card-title">Daftar Akun Puskesmas</h2>
+                        <h2 class="card-title">Sistem Antrian Cerdas Puskesmas Buntok</h2>
                         <div class="card-text">
-                            <p>Sebelum mendaftar nomor antrian silahkan masuk ke halaman <strong>Daftar Akun</strong>
-                                terlebih dahulu, untuk dapat
-                                bisa mengakses pendaftaran nomor antrian anda.</p>
+                            <p>Silakan pilih opsi di bawah ini:</p>
+                            <a href="daftar" class="btn btn-primary">Daftar Akun</a>
+                            <a href="/masuk" class="btn btn-primary">Login</a>
+                            <hr>
+                            <a href="/daftar-antrian" class="btn btn-primary">Daftar Nomor Antrian</a>
+                            <a href="/lihat-antrian" class="btn btn-primary">Lihat Antrian</a>
+                            <hr>
+                            <a class="btn btn-primary dropdown-toggle" data-bs-toggle="collapse"
+                                href="#panduanCollapse" role="button" aria-expanded="false"
+                                aria-controls="panduanCollapse">Panduan Penggunaan Sistem Antrian</a>
+                            <div class="collapse" id="panduanCollapse">
+                                <hr>
+                                <p>Berikut adalah langkah-langkah untuk menggunakan sistem antrian:</p>
+                                <ul>
+                                    <li>Sebelum Mendaftar Nomor Antrian atau Melihat Nomor Antrian yang Ada, Anda
+                                        Daftarkan Dulu Akun Anda dengan Mengklik Tombol "Daftar Akun".</li>
+                                    <li>Setelah Mendaftar, Login Ke Sistem Menggunakan Akun yang Telah Dibuat Dengan
+                                        Mengklik Tombol "Login"</li>
+                                    <li>Jika Anda Ingin Mendaftar Nomor Antrian, Silahkan Klik Tombol "Daftar Nomor
+                                        Antrian" dan Pilih Ruangan Mana yang Ingin Anda Daftarkan</li>
+                                    <li>Anda Dapat Melihat Status Antrian dan Nomor Antrian Anda serta Nomor Antrian
+                                        Ruangan Lain Di Halaman "Lihat Antrian".</li>
+                                    <li>Datang Ke Puskesmas Sesuai dengan Nomor Antrian yang Telah Anda Dapatkan.</li>
+                                    <li>Jika Antrian Anda Masuk Dalam Daftar Tunggu, Silahkan Datangi Admin Ruangan
+                                        untuk Memanggilkan Antrian Anda Kembali</li>
+                                </ul>
+                            </div>
                         </div>
-                        <a href="daftar" class="btn btn-primary">Daftar Akun</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h2 class="card-title">Daftar Nomor Antrian</h2>
-                        <div class="card-text">
-                            <p>Silahkan masuk ke halaman <strong>Daftar Nomor Antrian</strong> jika anda ingin
-                                mendaftarkan nomor antrian berobat
-                                di Puskesmas Buntok.</p>
-                        </div>
-                        <a href="/daftar-antrian" class="btn btn-primary">Daftar Nomor Antrian</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h2 class="card-title">Lihat Nomor Antrian</h2>
-                        <div class="card-text">
-                            <p>Silahkan masuk ke halaman <strong>Lihat Antrian</strong> jika ada yang ingin melihat
-                                nomor antrian yang sedang dilayani
-                                untuk tiap ruangan, dan nomor antrian anda.</p>
-                        </div>
-                        <a href="/lihat-antrian" class="btn btn-primary">Lihat Antrian</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 
     <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
         <div class="container py-5">
@@ -317,8 +316,7 @@
                 $('#loginModal').modal('show');
             }
 
-            $('#loginModal').on('hidden.bs.modal', function(e) {
-            });
+            $('#loginModal').on('hidden.bs.modal', function(e) {});
 
             $('a[href="/daftar-antrian"], a[href="/lihat-antrian"]').click(function(e) {
                 if (!isLoggedIn) {

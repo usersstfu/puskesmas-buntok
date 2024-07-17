@@ -31,6 +31,9 @@ Route::get('/dokter', [DokterController::class, 'index'])->name('dokter');
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak');
 Route::get('/antrian', [AntrianController::class, 'index'])->name('antrian');
 
+//Ajuan
+Route::post('/contact', [KontakController::class, 'store'])->name('contact.store');
+
 // Lihat Antrian
 Route::middleware('auth')->get('/lihat-antrian', [LihatAntrianController::class, 'index'])->name('lihat-antrian');
 Route::get('/get-all-antrian', [LihatAntrianController::class, 'getAllAntrian'])->name('get-all-antrian');
@@ -61,9 +64,8 @@ Route::get('/generate-nomor-antrian', [SimulasiController::class, 'generateNomor
 Route::get('/tampilkan-antrian', [SimulasiController::class, 'tampilkanDataAntrian'])->name('tampilkan-antrian');
 Route::get('/update-waktu-antrian', [SimulasiController::class, 'updateWaktuAntrian'])->name('update-waktu-antrian');
 Route::get('/ekspor-data-antrian', [SimulasiController::class, 'eksporDataAntrianKeCsv'])->name('ekspor-data-antrian');
-Route::get('/tampilkan-latihan', [MachineLearningController::class, 'showTrainForm']);
-Route::post('/train-model', [MachineLearningController::class, 'train']);
-Route::post('/predict', [MachineLearningController::class, 'predict']);
+Route::post('/train-model', [DaftarAntrianController::class, 'trainModel']);
+Route::post('/predict', [DaftarAntrianController::class, 'predict']);
 
 // Sistem Antrian
 Route::middleware('auth:admin')->group(function () {
@@ -75,6 +77,12 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/secure/pindah-antrian', [AdminAuthController::class, 'pindahkanNomorAntrian'])->name('admin.pindahkanNomorAntrian');
     Route::post('/secure/pindahkan-ke-daftar-tunggu', [AdminAuthController::class, 'pindahkanKeDaftarTunggu'])->name('admin.pindahkanKeDaftarTunggu');
     Route::post('/secure/panggil-kembali', [AdminAuthController::class, 'panggilKembali'])->name('admin.panggilKembali');
+    Route::post('/antrian/berikan-prioritas', [AdminAuthController::class, 'berikanPrioritas'])->name('antrian.berikanPrioritas');
+    Route::get('/secure/prioritas', [AdminAuthController::class, 'showPrioritasPage'])->name('antrian.showPrioritasPage');
+    Route::post('/secure/update-status-pembayaran', [AdminAuthController::class, 'updateStatusPembayaran'])->name('admin.updateStatusPembayaran');
+    Route::get('/secure/detail-pengguna/{id}', [AdminAuthController:: class, 'showUserDetail'])->name('admin.user-detail');
+    Route::get('/secure/riwayat-antrian', [AdminAuthController::class, 'indexRiwayatAntrian'])->name('admin.riwayat-antrian');
+    Route::get('/secure/kontak-index', [AdminAuthController::class, 'showKontakPage'])->name('admin.contacts.index');
     // Poli Umum
     Route::get('/secure/poli-umum', [AdminAuthController::class, 'showPoliUmumPage'])->name('admin.poli-umum');
     Route::post('/secure/poli-umum/start-queue', [AdminAuthController::class, 'startQueuePoliUmum'])->name('admin.startQueuePoliUmum');
@@ -90,7 +98,7 @@ Route::middleware('auth:admin')->group(function () {
     // Poli Anak
     Route::get('/secure/poli-anak', [AdminAuthController::class, 'showAnakUmumPage'])->name('admin.poli-anak');
     Route::post('/secure/poli-anak/start-queue', [AdminAuthController::class, 'startQueuePoliAnak'])->name('admin.startQueuePoliAnak');
-    Route::post('/secure/poli-anak/selesai-antrian', [AdminAuthController::class, 'selesaikanAntrianPoliAnak'])->name('admin.selesaikanAntrianPoliUmum');
+    Route::post('/secure/poli-anak/selesai-antrian', [AdminAuthController::class, 'selesaikanAntrianPoliAnak'])->name('admin.selesaikanAntrianPoliAnak');
     // Laboraturium
     Route::get('/secure/lab', [AdminAuthController::class, 'showLabUmumPage'])->name('admin.lab');
     Route::post('/secure/lab/start-queue', [AdminAuthController::class, 'startQueueLab'])->name('admin.startQueueLab');

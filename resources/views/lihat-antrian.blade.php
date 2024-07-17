@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Lihat Nomor Antrian - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -72,7 +73,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>
@@ -154,7 +154,39 @@
                     <p class="card-text">Status: <span
                             id="ruangan">{{ ucwords(str_replace('_', ' ', $nomorAntrian->status)) }}</span></p>
                     <p class="card-text">Prioritas: <span id="nik_user">{{ $nomorAntrian->prioritas }}</span></p>
-                    <p class="card-text">Prediksi Waktu Tunggu: <span id="waktu_tunggu">30 menit</span></p>
+
+                    <!-- Menambahkan Status Pembayaran -->
+                    <p class="card-text">Status Pembayaran:
+                        <span
+                            class="badge 
+                        @if ($nomorAntrian->status_pembayaran == 'Belum Lunas') bg-danger 
+                        @elseif ($nomorAntrian->status_pembayaran == 'BPJS') bg-primary 
+                        @else bg-success @endif">
+                            {{ $nomorAntrian->status_pembayaran }}
+                        </span>
+                    </p>
+                    @if (strpos($nomorAntrian->status, 'sedang_antri') === 0)
+                        @php
+                            $seconds = $nomorAntrian->waktu_total_sistem;
+                            $hours = floor($seconds / 3600);
+                            $minutes = floor(($seconds / 60) % 60);
+                            $seconds = $seconds % 60;
+                            $formattedTime = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+                        @endphp
+                        <p class="card-text p-2 bg-info text-white rounded">Prediksi Waktu Tunggu: <span
+                                id="waktu_tunggu">{{ $formattedTime }}</span></p>
+                    @elseif (strpos($nomorAntrian->status, 'sedang_dilayani') === 0)
+                        <p class="card-text p-2 bg-warning text-white rounded"><span id="waktu_tunggu">Sedang
+                                Dilayani</span></p>
+                    @elseif (strpos($nomorAntrian->status, 'daftar_tunggu') === 0)
+                        <p class="card-text p-2 bg-secondary text-white rounded"><span id="waktu_tunggu">Daftar
+                                Tunggu</span></p>
+                        <p class="card-text p-2 bg-light text-danger rounded">Silahkan Datangi Ke Admin Ruangan Anda,
+                            Untuk Memanggilkan Nomor Antrian Anda Kembali</p>
+                    @else
+                        <p class="card-text p-2 bg-success text-white rounded"><span id="waktu_tunggu">Sudah
+                                Dilayani</span></p>
+                    @endif
                 </div>
             </div>
         @else
@@ -167,41 +199,78 @@
             </div>
         @endif
 
+
         <div class="row">
             @foreach ($currentQueues as $ruangan => $currentQueue)
-                <div class="col-lg-6">
-                    <div class="card mb-4">
-                        <div class="card-body text-center">
-                            <div class="bg-primary rounded-circle d-inline-block p-3">
-                                <h2 class="text-white m-0">
-                                    @if ($currentQueue && $currentQueue->status === 'sedang_dilayani')
-                                        {{ $currentQueue->nomor }}
-                                    @elseif ($currentQueue && strpos($currentQueue->status, 'sedang_dilayani_') !== false)
-                                        <span>{{ $currentQueue->nomor }}</span>
-                                    @else
-                                        0
-                                    @endif
-                                </h2>
-                            </div>
-                            <h5 class="card-title mt-3">{{ ucwords(str_replace('_', ' ', $ruangan)) }}</h5>
-                            <p class="card-text">Nama:
-                                @if ($currentQueue && $currentQueue->status === 'sedang_dilayani')
-                                    <span>{{ $currentQueue->nama }}</span>
-                                @elseif ($currentQueue && strpos($currentQueue->status, 'sedang_dilayani_') !== false)
-                                    <span>{{ $currentQueue->nama }}</span>
-                                @else
-                                    <span>Belum ada yang dilayani.</span>
-                                @endif
-                            </p>
+                @if ($nomorAntrian && $nomorAntrian->ruangan == $ruangan)
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
                             <div class="card-body text-center">
-                                <button class="btn btn-primary btn-block mb-2 showAllQueuesBtn"
-                                    data-room="{{ $ruangan }}">Tampilkan Semua Nomor Antrian</button>
-                                <button class="btn btn-primary btn-block showWaitListBtn"
-                                    data-room="{{ $ruangan }}">Tampilkan Antrian Daftar Tunggu</button>
+                                <div class="bg-primary rounded-circle d-inline-block p-3">
+                                    <h2 class="text-white m-0">
+                                        @if ($currentQueue && $currentQueue->status === 'sedang_dilayani')
+                                            {{ $currentQueue->nomor }}
+                                        @elseif ($currentQueue && strpos($currentQueue->status, 'sedang_dilayani_') !== false)
+                                            <span>{{ $currentQueue->nomor }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </h2>
+                                </div>
+                                <h5 class="card-title mt-3">{{ ucwords(str_replace('_', ' ', $ruangan)) }}</h5>
+                                <p class="card-text">Nama:
+                                    @if ($currentQueue && $currentQueue->status === 'sedang_dilayani')
+                                        <span>{{ $currentQueue->nama }}</span>
+                                    @elseif ($currentQueue && strpos($currentQueue->status, 'sedang_dilayani_') !== false)
+                                        <span>{{ $currentQueue->nama }}</span>
+                                    @else
+                                        <span>Belum ada yang dilayani.</span>
+                                    @endif
+                                </p>
+                                <div class="card-body text-center">
+                                    <button class="btn btn-primary btn-block mb-2 showAllQueuesBtn"
+                                        data-room="{{ $ruangan }}">Tampilkan Semua Nomor Antrian</button>
+                                    <button class="btn btn-primary btn-block showWaitListBtn"
+                                        data-room="{{ $ruangan }}">Tampilkan Antrian Daftar Tunggu</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @elseif (!$nomorAntrian)
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <div class="card-body text-center">
+                                <div class="bg-primary rounded-circle d-inline-block p-3">
+                                    <h2 class="text-white m-0">
+                                        @if ($currentQueue && $currentQueue->status === 'sedang_dilayani')
+                                            {{ $currentQueue->nomor }}
+                                        @elseif ($currentQueue && strpos($currentQueue->status, 'sedang_dilayani_') !== false)
+                                            <span>{{ $currentQueue->nomor }}</span>
+                                        @else
+                                            0
+                                        @endif
+                                    </h2>
+                                </div>
+                                <h5 class="card-title mt-3">{{ ucwords(str_replace('_', ' ', $ruangan)) }}</h5>
+                                <p class="card-text">Nama:
+                                    @if ($currentQueue && $currentQueue->status === 'sedang_dilayani')
+                                        <span>{{ $currentQueue->nama }}</span>
+                                    @elseif ($currentQueue && strpos($currentQueue->status, 'sedang_dilayani_') !== false)
+                                        <span>{{ $currentQueue->nama }}</span>
+                                    @else
+                                        <span>Belum ada yang dilayani.</span>
+                                    @endif
+                                </p>
+                                <div class="card-body text-center">
+                                    <button class="btn btn-primary btn-block mb-2 showAllQueuesBtn"
+                                        data-room="{{ $ruangan }}">Tampilkan Semua Nomor Antrian</button>
+                                    <button class="btn btn-primary btn-block showWaitListBtn"
+                                        data-room="{{ $ruangan }}">Tampilkan Antrian Daftar Tunggu</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @endforeach
         </div>
     </div>
@@ -287,21 +356,21 @@
         document.addEventListener('DOMContentLoaded', function() {
             var showAllQueuesBtns = document.querySelectorAll('.showAllQueuesBtn');
             var showWaitListBtns = document.querySelectorAll('.showWaitListBtn');
-    
+
             showAllQueuesBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var room = btn.getAttribute('data-room');
                     showQueues(room);
                 });
             });
-    
+
             showWaitListBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var room = btn.getAttribute('data-room');
                     showWaitList(room);
                 });
             });
-    
+
             function showQueues(room) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', '/get-all-antrian?room=' + room, true);
@@ -310,7 +379,7 @@
                         var queues = JSON.parse(xhr.responseText);
                         var modalBody = document.getElementById('allQueuesModalBody');
                         modalBody.innerHTML = '';
-    
+
                         if (queues.length === 0) {
                             var tr = document.createElement('tr');
                             var td = document.createElement('td');
@@ -320,7 +389,7 @@
                             modalBody.appendChild(tr);
                         } else {
                             queues.forEach(function(queue) {
-                                if(queue.status !== 'daftar_tunggu') {
+                                if (queue.status !== 'daftar_tunggu') {
                                     var tr = document.createElement('tr');
                                     var tdNomorAntrian = document.createElement('td');
                                     var tdNama = document.createElement('td');
@@ -334,7 +403,7 @@
                                     modalBody.appendChild(tr);
                                 }
                             });
-    
+
                         }
                         var allQueuesModal = new bootstrap.Modal(document.getElementById('allQueuesModal'));
                         allQueuesModal.show();
@@ -342,7 +411,7 @@
                 };
                 xhr.send();
             }
-    
+
             function showWaitList(room) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', '/get-wait-list?room=' + room, true);
@@ -351,7 +420,7 @@
                         var queues = JSON.parse(xhr.responseText);
                         var modalBody = document.getElementById('waitListModalBody');
                         modalBody.innerHTML = '';
-    
+
                         if (queues.length === 0) {
                             var tr = document.createElement('tr');
                             var td = document.createElement('td');
@@ -380,14 +449,14 @@
                 };
                 xhr.send();
             }
-    
+
             function ucwords(str) {
                 return str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
                     return letter.toUpperCase();
                 });
             }
         });
-    </script>    
+    </script>
 </body>
 
 </html>

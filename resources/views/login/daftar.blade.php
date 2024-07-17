@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Daftar Akun</title>
     <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
@@ -42,34 +43,34 @@
                                 <form action="{{ route('daftar.post') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="name" class="form-label">Nama</label>
+                                        <label for="name" class="form-label">Nama <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="name" name="name"
                                             aria-describedby="textHelp">
                                     </div>
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
+                                        <label for="email" class="form-label">Email <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="email" name="email"
                                             aria-describedby="emailHelp">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="phone_number" class="form-label">No. Hp</label>
+                                        <label for="phone_number" class="form-label">No. Hp <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="phone_number"
                                             name="phone_number">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="religion" class="form-label">Agama</label>
+                                        <label for="religion" class="form-label">Agama <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="religion" name="religion">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="occupation" class="form-label">Pekerjaan</label>
+                                        <label for="occupation" class="form-label">Pekerjaan <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="occupation" name="occupation">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="birthdate" class="form-label">Tanggal Lahir</label>
+                                        <label for="birthdate" class="form-label">Tanggal Lahir <span style="color: red;">*</span></label>
                                         <input type="date" class="form-control" id="birthdate" name="birthdate">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="address" class="form-label">Alamat</label>
+                                        <label for="address" class="form-label">Alamat <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="address" name="address">
                                     </div>
                                     <div class="mb-4">
@@ -90,12 +91,19 @@
                                         nanti </p>
                                     <div class="mb-4">
                                         <label for="nik" class="form-label">NIK (Nomor Induk
-                                            Kependudukan)</label>
+                                            Kependudukan) <span style="color: red;">*</span></label>
                                         <input type="text" class="form-control" id="nik" name="nik">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="password" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="password" name="password">
+                                        <label for="password" class="form-label">Password <span style="color: red;">*</span></label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="password_confirmation" class="form-label">Konfirmasi
+                                            Password <span style="color: red;">*</span></label>
+                                        <input type="password" class="form-control" id="password_confirmation"
+                                            name="password_confirmation" required>
                                     </div>
                                     <button type="submit"
                                         class="btn btn-primary w-100 py-2 fs-5 mb-4 rounded-2">Daftar</button>
@@ -113,6 +121,18 @@
     </div>
     <script src="../admin/libs/jquery/dist/jquery.min.js"></script>
     <script src="../admin/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('password_confirmation').oninput = function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            if (password !== confirmPassword) {
+                document.getElementById('password_confirmation').setCustomValidity('Passwords Tidak Sama.');
+            } else {
+                document.getElementById('password_confirmation').setCustomValidity('');
+            }
+        };
+    </script>
+
 </body>
 
 </html>

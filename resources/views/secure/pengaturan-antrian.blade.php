@@ -18,8 +18,8 @@
         <aside class="left-sidebar">
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="text-nowrap logo-img">
-                        <img src="../admin/images/logos/logo.jpg" width="180" alt="" />
+                    <a href="{{ route('admin.dashboard') }}" class="text-nowrap logo-img">
+                        <img class="mx-4" src="../admin/images/logos/logo.jpg" width="170" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8"></i>
@@ -44,13 +44,23 @@
                             <span class="hide-menu">Sistem Antrian Cerdas</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ route('pengaturan-antrian.index') }}" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('pengaturan-antrian.index') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
                                 <span class="hide-menu">Pengaturan Antrian</span>
                             </a>
-                        </li>               
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{{ route('antrian.showPrioritasPage') }}"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-alert-circle"></i>
+                                </span>
+                                <span class="hide-menu">Loket</span>
+                            </a>
+                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="{{ route('admin.poli-umum') }}" aria-expanded="false">
                                 <span>
@@ -100,7 +110,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.riwayat-antrian') }}" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
@@ -112,7 +122,8 @@
                             <span class="hide-menu">Pengguna</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ route('admin.daftar-pengguna') }}" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.daftar-pengguna') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-login"></i>
                                 </span>
@@ -120,11 +131,12 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./authentication-register.html" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.contacts.index') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-user-plus"></i>
                                 </span>
-                                <span class="hide-menu">Register</span>
+                                <span class="hide-menu">Ajuan</span>
                             </a>
                         </li>
                         <li class="nav-small-cap">
@@ -132,15 +144,12 @@
                             <span class="hide-menu">Profil</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./icon-tabler.html" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-mood-happy"></i>
-                                </span>
-                                <span class="hide-menu">My Profile</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./sample-page.html" aria-expanded="false">
+                            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
+                                style="display: none;">
+                                @csrf
+                            </form>
+                            <a class="sidebar-link" href="#" onclick="confirmLogout(event)"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-aperture"></i>
                                 </span>
@@ -202,7 +211,6 @@
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <div class="card">
-                            <div class="card-header">Pengaturan Antrian</div>
                             <div class="card-body">
                                 @if (session('success'))
                                     <div class="alert alert-success" role="alert">
@@ -252,6 +260,15 @@
     <script src="../admin/libs/simplebar/dist/simplebar.js"></script>
     <script>
         var csrfToken = $('meta[name="csrf-token"]').attr('content');
+    </script>
+    <script>
+        function confirmLogout(event) {
+            event.preventDefault();
+            let result = confirm("Apakah Anda yakin ingin logout?");
+            if (result) {
+                document.getElementById('logout-form').submit();
+            }
+        }
     </script>
 </body>
 

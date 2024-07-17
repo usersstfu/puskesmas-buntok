@@ -5,9 +5,62 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Sistem Antrian - Puskesmas Buntok</title>
+    <title>Loket - Puskesmas Buntok</title>
     <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <link rel="stylesheet" href="../admin/css/styles.min.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        table {
+            margin-top: 30px;
+        }
+
+        table th,
+        table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .modal-title {
+            font-weight: bold;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -205,179 +258,137 @@
             </header>
             <br>
             <br>
-            <br>
-            <br>
-            <div class="room-container" id="poli_anak">
-                @if (session('error'))
-                    <div class="alert alert-danger" role="alert">
-                        {{ session('error') }}
+            <div class="container">
+                <h3>Sistem Prioritas "Didahulukan"</h3>
+                <form action="{{ route('antrian.berikanPrioritas') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="nomor_antrian">Nomor Antrian</label>
+                        <select class="form-control" id="nomor_antrian" name="nomor_antrian" required>
+                            <option value="" disabled selected>Pilih Nomor Antrian</option>
+                            @foreach ($allQueues as $queue)
+                                <option value="{{ $queue->id }}">{{ $queue->nomor }} - {{ $queue->nama }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                @endif
-                @if (session('success'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('success') }}
+                    <div class="form-group">
+                        <label for="alasan_prioritas">Alasan Prioritas</label>
+                        <textarea class="form-control" id="alasan_prioritas" name="alasan_prioritas" required></textarea>
                     </div>
-                @endif
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <div class="bg-primary rounded-circle d-inline-block p-3">
-                                    <h2 class="text-white m-0" id="nomor_antrian">
-                                        @if ($currentQueue && $currentQueue->ruangan === 'poli_anak')
-                                            {{ $currentQueue->nomor }}
-                                        @else
-                                            0
-                                        @endif
-                                    </h2>
-                                </div>
-                                <h3 class="card-title mt-3">Poli Anak</h3>
-                                <h5 class="card-text" id="nama_ruangan">
-                                    @if ($currentQueue && $currentQueue->ruangan === 'poli_anak')
-                                        {{ $currentQueue->nama }}
-                                    @else
-                                        Belum ada yang dilayani.
-                                    @endif
-                                </h5>
-                                <p class="card-text">Status Pembayaran: </p>
-                                <span
-                                    class="badge 
-                                        @if ($currentQueue && $currentQueue->status_pembayaran == 'Belum Lunas') bg-danger 
-                                        @elseif ($currentQueue && $currentQueue->status_pembayaran == 'BPJS') bg-primary 
-                                        @else bg-success @endif">
-                                    @if ($currentQueue)
-                                        {{ $currentQueue->status_pembayaran }}
-                                    @else
-                                        -
-                                    @endif
-                                </span>
-                                </p>
-                                @if (!$currentQueueNumber)
-                                    <form method="POST"
-                                        action="{{ route('admin.startQueuePoliAnak', ['ruangan' => 'poli_anak']) }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success">Mulai</button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('admin.pindahkanNomorAntrian') }}"
-                                        class="d-flex flex-column">
-                                        @csrf
-                                        <input type="hidden" name="nomor_antrian" value="{{ $currentQueue->id }}">
-                                        <div class="mb-3">
-                                            <label for="ruangan_tujuan" class="form-label">Pilih Ruangan
-                                                Tujuan:</label>
-                                            <select name="ruangan_tujuan" id="ruangan_tujuan" class="form-select">
-                                                <option selected disabled>Pilih Ruangan</option>
-                                                <option value="poli_gigi">Poli Gigi</option>
-                                                <option value="poli_kia">Poli KIA/KB</option>
-                                                <option value="poli_umum">Poli Umum</option>
-                                                <option value="lab">Laboraturium</option>
-                                                <option value="apotik">Apotik</option>
-                                            </select>
+                    <button type="submit" class="btn btn-primary">Berikan Prioritas</button>
+                </form>
+                <br>
+                <h3 class="mt-5">Sistem Status Pembayaran</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nomor Antrian</th>
+                            <th>Nama</th>
+                            <th>Status</th>
+                            <th>Prioritas</th>
+                            <th>Status Prioritas</th>
+                            <th>Alasan Prioritas</th>
+                            <th>Status Pembayaran</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($allQueues as $queue)
+                            <tr>
+                                <td>{{ $queue->nomor }}</td>
+                                <td>{{ $queue->nama }}</td>
+                                <td>{{ $queue->status }}</td>
+                                <td>{{ $queue->prioritas }}</td>
+                                <td>{{ $queue->status_prioritas }}</td>
+                                <td>
+                                    @if ($queue->prioritas == 'didahulukan')
+                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#alasanModal{{ $queue->id }}">
+                                            Lihat Alasan
+                                        </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="alasanModal{{ $queue->id }}" tabindex="-1"
+                                            aria-labelledby="alasanModalLabel{{ $queue->id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="alasanModalLabel{{ $queue->id }}">Alasan Prioritas
+                                                        </h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        {{ $queue->alasan_prioritas }}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Tutup</button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Pindahkan Antrian</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.pindahkanKeDaftarTunggu') }}"
-                                        class="d-flex flex-column mt-3">
-                                        @csrf
-                                        <input type="hidden" name="nomor_antrian" value="{{ $currentQueue->id }}">
-                                        <button type="submit" class="btn btn-warning">Pindahkan ke Daftar
-                                            Tunggu</button>
-                                    </form>
-                                    <form method="POST"
-                                        action="{{ route('admin.selesaikanAntrianPoliAnak', ['ruangan' => 'poli_anak']) }}"
-                                        class="d-flex flex-column mt-3">
-                                        @csrf
-                                        <input type="hidden" name="nomor_antrian" value="{{ $currentQueue->id }}">
-                                        <button type="submit" class="btn btn-danger">Selesai</button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Nomor Antrian</h5>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Nomor Antrian</th>
-                                            <th>Nama</th>
-                                            <th>Status</th>
-                                            <th>Prioritas</th>
-                                            <th>Status Prioritas</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="poli_anak_queue_body">
-                                        @if (isset($allQueues['poli_anak']))
-                                            @foreach ($allQueues['poli_anak'] as $queue)
-                                                <tr>
-                                                    <td>{{ $queue->nomor }}</td>
-                                                    <td>{{ $queue->nama }}</td>
-                                                    <td>
-                                                        {{ $queue->status }}
-                                                        @if ($queue->status == 'daftar_tunggu')
-                                                            <form method="POST"
-                                                                action="{{ route('admin.panggilKembali') }}"
-                                                                class="d-flex flex-column">
+                                    @endif
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge 
+                                        @if ($queue->status_pembayaran == 'Belum Lunas') bg-danger 
+                                        @elseif ($queue->status_pembayaran == 'BPJS') bg-primary 
+                                        @else bg-success @endif">
+                                        {{ $queue->status_pembayaran }}
+                                    </span>
+                                </td>
+                                <td>
+                                    @if ($queue->status_pembayaran == 'Belum Lunas')
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#konfirmasiPembayaranModal{{ $queue->id }}">
+                                            Ubah Status
+                                        </button>
+                                        <div class="modal fade" id="konfirmasiPembayaranModal{{ $queue->id }}"
+                                            tabindex="-1"
+                                            aria-labelledby="konfirmasiPembayaranLabel{{ $queue->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="konfirmasiPembayaranLabel{{ $queue->id }}">
+                                                            Konfirmasi Pembayaran
+                                                        </h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Apakah nomor antrian {{ $queue->nomor }} sudah membayar?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <div class="d-flex w-100">
+                                                            <button type="button"
+                                                                class="btn btn-secondary flex-fill me-2"
+                                                                data-bs-dismiss="modal">Tidak</button>
+                                                            <form action="{{ route('admin.updateStatusPembayaran') }}"
+                                                                method="POST" class="flex-fill">
                                                                 @csrf
-                                                                <input type="hidden" name="nomor_antrian"
+                                                                <input type="hidden" name="nomor_antrian_id"
                                                                     value="{{ $queue->id }}">
+                                                                <input type="hidden" name="status_pembayaran"
+                                                                    value="Sudah Lunas">
                                                                 <button type="submit"
-                                                                    class="btn btn-warning btn-sm mt-2">Panggil
-                                                                    Kembali</button>
+                                                                    class="btn btn-primary w-100">Ya</button>
                                                             </form>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $queue->prioritas }}
-                                                        @if ($queue->prioritas == 'didahulukan')
-                                                            <button type="button" class="btn btn-info btn-sm mt-2"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#alasanModal{{ $queue->id }}">
-                                                                Alasan
-                                                            </button>
-                                                            <div class="modal fade"
-                                                                id="alasanModal{{ $queue->id }}" tabindex="-1"
-                                                                aria-labelledby="alasanModalLabel{{ $queue->id }}"
-                                                                aria-hidden="true">
-                                                                <div class="modal-dialog">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title"
-                                                                                id="alasanModalLabel{{ $queue->id }}">
-                                                                                Alasan Prioritas</h5>
-                                                                            <button type="button" class="btn-close"
-                                                                                data-bs-dismiss="modal"
-                                                                                aria-label="Close"></button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            {{ $queue->alasan_prioritas }}
-                                                                        </div>
-                                                                        <div class="modal-footer">
-                                                                            <button type="button"
-                                                                                class="btn btn-secondary"
-                                                                                data-bs-dismiss="modal">Tutup</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $queue->status_prioritas }}</td>
-                                                </tr>
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td colspan="5">Belum ada antrian untuk hari ini.</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

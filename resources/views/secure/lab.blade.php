@@ -18,8 +18,8 @@
         <aside class="left-sidebar">
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="text-nowrap logo-img">
-                        <img src="../admin/images/logos/logo.jpg" width="180" alt="" />
+                    <a href="{{ route('admin.dashboard') }}" class="text-nowrap logo-img">
+                        <img class="mx-4" src="../admin/images/logos/logo.jpg" width="170" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8"></i>
@@ -50,6 +50,15 @@
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
                                 <span class="hide-menu">Pengaturan Antrian</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{{ route('antrian.showPrioritasPage') }}"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-alert-circle"></i>
+                                </span>
+                                <span class="hide-menu">Loket</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -101,7 +110,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.riwayat-antrian') }}" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
@@ -113,7 +122,8 @@
                             <span class="hide-menu">Pengguna</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ route('admin.daftar-pengguna') }}" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.daftar-pengguna') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-login"></i>
                                 </span>
@@ -121,11 +131,12 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./authentication-register.html" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.contacts.index') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-user-plus"></i>
                                 </span>
-                                <span class="hide-menu">Register</span>
+                                <span class="hide-menu">Ajuan</span>
                             </a>
                         </li>
                         <li class="nav-small-cap">
@@ -133,15 +144,12 @@
                             <span class="hide-menu">Profil</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./icon-tabler.html" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-mood-happy"></i>
-                                </span>
-                                <span class="hide-menu">My Profile</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./sample-page.html" aria-expanded="false">
+                            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
+                                style="display: none;">
+                                @csrf
+                            </form>
+                            <a class="sidebar-link" href="#" onclick="confirmLogout(event)"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-aperture"></i>
                                 </span>
@@ -223,13 +231,26 @@
                                         @endif
                                     </h2>
                                 </div>
-                                <h5 class="card-title mt-3">Laboraturium</h5>
-                                <p class="card-text" id="nama_ruangan">
+                                <h3 class="card-title mt-3">Laboraturium</h3>
+                                <h5 class="card-text" id="nama_ruangan">
                                     @if ($currentQueue && $currentQueue->ruangan === 'lab')
                                         {{ $currentQueue->nama }}
                                     @else
                                         Belum ada yang dilayani.
                                     @endif
+                                </h5>
+                                <p class="card-text">Status Pembayaran: </p>
+                                <span
+                                    class="badge 
+                                        @if ($currentQueue && $currentQueue->status_pembayaran == 'Belum Lunas') bg-danger 
+                                        @elseif ($currentQueue && $currentQueue->status_pembayaran == 'BPJS') bg-primary 
+                                        @else bg-success @endif">
+                                    @if ($currentQueue)
+                                        {{ $currentQueue->status_pembayaran }}
+                                    @else
+                                        -
+                                    @endif
+                                </span>
                                 </p>
                                 @if (!$currentQueueNumber)
                                     <form method="POST"
@@ -289,29 +310,68 @@
                                         </tr>
                                     </thead>
                                     <tbody id="lab_queue_body">
-                                        @foreach ($allQueues['lab'] as $queue)
+                                        @if (isset($allQueues['lab']))
+                                            @foreach ($allQueues['lab'] as $queue)
+                                                <tr>
+                                                    <td>{{ $queue->nomor }}</td>
+                                                    <td>{{ $queue->nama }}</td>
+                                                    <td>
+                                                        {{ $queue->status }}
+                                                        @if ($queue->status == 'daftar_tunggu')
+                                                            <form method="POST"
+                                                                action="{{ route('admin.panggilKembali') }}"
+                                                                class="d-flex flex-column">
+                                                                @csrf
+                                                                <input type="hidden" name="nomor_antrian"
+                                                                    value="{{ $queue->id }}">
+                                                                <button type="submit"
+                                                                    class="btn btn-warning btn-sm mt-2">Panggil
+                                                                    Kembali</button>
+                                                            </form>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $queue->prioritas }}
+                                                        @if ($queue->prioritas == 'didahulukan')
+                                                            <button type="button" class="btn btn-info btn-sm mt-2"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#alasanModal{{ $queue->id }}">
+                                                                Alasan
+                                                            </button>
+                                                            <div class="modal fade"
+                                                                id="alasanModal{{ $queue->id }}" tabindex="-1"
+                                                                aria-labelledby="alasanModalLabel{{ $queue->id }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="alasanModalLabel{{ $queue->id }}">
+                                                                                Alasan Prioritas</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            {{ $queue->alasan_prioritas }}
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                data-bs-dismiss="modal">Tutup</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $queue->status_prioritas }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @else
                                             <tr>
-                                                <td>{{ $queue->nomor }}</td>
-                                                <td>{{ $queue->nama }}</td>
-                                                <td>
-                                                    {{ $queue->status }}
-                                                    @if ($queue->status == 'daftar_tunggu')
-                                                        <form method="POST"
-                                                            action="{{ route('admin.panggilKembali') }}"
-                                                            class="d-flex flex-column">
-                                                            @csrf
-                                                            <input type="hidden" name="nomor_antrian"
-                                                                value="{{ $queue->id }}">
-                                                            <button type="submit"
-                                                                class="btn btn-warning btn-sm mt-2">Panggil
-                                                                Kembali</button>
-                                                        </form>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $queue->prioritas }}</td>
-                                                <td>{{ $queue->status_prioritas }}</td>
+                                                <td colspan="5">Belum ada antrian untuk hari ini.</td>
                                             </tr>
-                                        @endforeach
+                                        @endif
                                     </tbody>
                                 </table>
                             </div>
@@ -328,6 +388,15 @@
     <script src="../admin/libs/simplebar/dist/simplebar.js"></script>
     <script>
         var csrfToken = $('meta[name="csrf-token"]').attr('content');
+    </script>
+    <script>
+        function confirmLogout(event) {
+            event.preventDefault();
+            let result = confirm("Apakah Anda yakin ingin logout?");
+            if (result) {
+                document.getElementById('logout-form').submit();
+            }
+        }
     </script>
 </body>
 

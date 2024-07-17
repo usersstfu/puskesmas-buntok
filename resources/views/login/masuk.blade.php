@@ -10,7 +10,6 @@
     <style>
         body {
             background-image: url('img/carousel-1.jpg');
-            /* Ganti 'lokasi/gambar/latar-belakang.jpg' dengan path ke gambar latar belakang yang Anda inginkan */
             background-size: cover;
             background-position: center;
         }
@@ -57,16 +56,6 @@
                                     <div class="mb-4">
                                         <label for="password" class="form-label">Password</label>
                                         <input type="password" class="form-control" id="password" name="password">
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input primary" type="checkbox" value=""
-                                                id="flexCheckChecked" checked>
-                                            <label class="form-check-label text-dark" for="flexCheckChecked">
-                                                Ingat Saya
-                                            </label>
-                                        </div>
-                                        <a class="text-primary fw-bold" href="./index.html">Lupa Password ?</a>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100 py-2 fs-5 mb-4 rounded-2">Sign
                                         In</button>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Daftar Pengguna _ Puskesmas Buntok</title>
+    <title>Daftar Pengguna - Puskesmas Buntok</title>
     <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <link rel="stylesheet" href="../admin/css/styles.min.css" />
 </head>
@@ -17,8 +17,8 @@
         <aside class="left-sidebar">
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="text-nowrap logo-img">
-                        <img src="../admin/images/logos/dark-logo.svg" width="180" alt="" />
+                    <a href="{{ route('admin.dashboard') }}" class="text-nowrap logo-img">
+                        <img class="mx-4" src="../admin/images/logos/logo.jpg" width="170" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8"></i>
@@ -43,13 +43,23 @@
                             <span class="hide-menu">Sistem Antrian Cerdas</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ route('pengaturan-antrian.index') }}" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('pengaturan-antrian.index') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
                                 <span class="hide-menu">Pengaturan Antrian</span>
                             </a>
-                        </li>               
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="{{ route('antrian.showPrioritasPage') }}"
+                                aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-alert-circle"></i>
+                                </span>
+                                <span class="hide-menu">Loket</span>
+                            </a>
+                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="{{ route('admin.poli-umum') }}" aria-expanded="false">
                                 <span>
@@ -99,7 +109,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.riwayat-antrian') }}" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
@@ -111,7 +121,8 @@
                             <span class="hide-menu">Pengguna</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ route('admin.daftar-pengguna') }}" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.daftar-pengguna') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-login"></i>
                                 </span>
@@ -119,11 +130,12 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="" aria-expanded="false">
+                            <a class="sidebar-link" href="{{ route('admin.contacts.index') }}"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-user-plus"></i>
                                 </span>
-                                <span class="hide-menu">Keluhan</span>
+                                <span class="hide-menu">Ajuan</span>
                             </a>
                         </li>
                         <li class="nav-small-cap">
@@ -131,15 +143,12 @@
                             <span class="hide-menu">Profile</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-mood-happy"></i>
-                                </span>
-                                <span class="hide-menu">My Profile</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="" aria-expanded="false">
+                            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
+                                style="display: none;">
+                                @csrf
+                            </form>
+                            <a class="sidebar-link" href="#" onclick="confirmLogout(event)"
+                                aria-expanded="false">
                                 <span>
                                     <i class="ti ti-aperture"></i>
                                 </span>
@@ -201,33 +210,30 @@
                             <div class="card-header">Daftar Pengguna</div>
                             <div class="card-body">
                                 <h3>Daftar Pengguna</h3>
+                                <input class="form-control my-4" type="text" id="searchInput"
+                                    onkeyup="searchTable()" placeholder="Cari nama pengguna...">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered">
+                                    <table class="table table-bordered" id="userTable">
                                         <thead>
                                             <tr>
                                                 <th>Nama</th>
-                                                <th>Email</th>
-                                                <th>Nomor Telepon</th>
-                                                <th>Agama</th>
-                                                <th>Pekerjaan</th>
-                                                <th>Tanggal Lahir</th>
-                                                <th>Umur</th>
-                                                <th>Alamat</th>
                                                 <th>NIK</th>
+                                                <th>Email</th>
+                                                <th>No. Hp</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($users as $user)
                                                 <tr>
                                                     <td>{{ $user->name }}</td>
+                                                    <td>{{ $user->nik }}</td>
                                                     <td>{{ $user->email }}</td>
                                                     <td>{{ $user->phone_number }}</td>
-                                                    <td>{{ $user->religion }}</td>
-                                                    <td>{{ $user->occupation }}</td>
-                                                    <td>{{ $user->birthdate }}</td>
-                                                    <td>{{ $user->age }}</td>
-                                                    <td>{{ $user->address }}</td>
-                                                    <td>{{ $user->nik }}</td>
+                                                    <td>
+                                                        <a href="{{ route('admin.user-detail', ['id' => $user->id]) }}"
+                                                            class="btn btn-primary btn-sm">Lihat Detail</a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -245,6 +251,36 @@
     <script src="../admin/js/sidebarmenu.js"></script>
     <script src="../admin/js/app.min.js"></script>
     <script src="../admin/libs/simplebar/dist/simplebar.js"></script>
+    <script>
+        function searchTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toLowerCase();
+            table = document.getElementById("userTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        function confirmLogout(event) {
+            event.preventDefault();
+            let result = confirm("Apakah Anda yakin ingin logout?");
+            if (result) {
+                document.getElementById('logout-form').submit();
+            }
+        }
+    </script>
 </body>
 
 </html>

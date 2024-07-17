@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Profile - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -194,26 +195,44 @@
                 <div class="card mt-3">
                     <div class="card-body">
                         <h5 class="card-title">Dokumen Identitas</h5>
-                        
-                        <!-- Jika terdapat gambar KTP -->
-                        @if ($user->ktp)
-                            <p><strong>KTP:</strong> {{ basename($user->ktp) }}</p>
-                            <img src="{{ asset('storage/' . $user->ktp) }}" alt="KTP Pengguna">
-                        @endif
-                        
-                        <!-- Jika terdapat gambar BPJS -->
-                        @if ($user->bpjs_card)
-                            <p><strong>Kartu BPJS:</strong> {{ basename($user->bpjs_card) }}</p>
-                            <img src="{{ asset('storage/' . $user->bpjs_card) }}" alt="Kartu BPJS Pengguna">
-                        @endif
-                        
-                        <!-- Jika terdapat gambar Kartu Berobat Puskesmas -->
-                        @if ($user->puskesmas_card)
-                            <p><strong>Kartu Berobat Puskesmas:</strong> {{ basename($user->puskesmas_card) }}</p>
-                            <img src="{{ asset('storage/' . $user->puskesmas_card) }}" alt="Kartu Berobat Puskesmas Pengguna">
-                        @endif
+                        <div class="mb-4">
+                            <label for="ktp" class="form-label">KTP: @if ($user->ktp)
+                                    <span class="badge bg-success">Berkas Ada</span>
+                                @else
+                                    <span class="badge bg-danger">Berkas Belum Ada</span>
+                                @endif
+                            </label>
+                            <div class="mb-2">
+                                <a href="{{ asset('storageLink/public/' . $user->ktp) }}" target="_blank">Lihat
+                                    KTP</a>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="ktp" class="form-label">BPJS: @if ($user->bpjs_card)
+                                    <span class="badge bg-success">Berkas Ada</span>
+                                @else
+                                    <span class="badge bg-danger">Berkas Belum Ada</span>
+                                @endif
+                            </label>
+                            <div class="mb-2">
+                                <a href="{{ asset('storageLink/public/' . $user->bpjs_card) }}" target="_blank">Lihat
+                                    BPJS</a>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="ktp" class="form-label">Kartu Puskesmas: @if ($user->puskesmas_card)
+                                    <span class="badge bg-success">Berkas Ada</span>
+                                @else
+                                    <span class="badge bg-danger">Berkas Belum Ada</span>
+                                @endif
+                            </label>
+                            <div class="mb-2">
+                                <a href="{{ asset('storageLink/public/' . $user->puskesmas_card) }}" target="_blank">Lihat
+                                    Kartu Puskesmas</a>
+                            </div>
+                        </div>
                     </div>
-                </div>                
+                </div>
             </div>
         </div>
     </div>

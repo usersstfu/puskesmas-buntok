@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Dokter - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -72,7 +73,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>

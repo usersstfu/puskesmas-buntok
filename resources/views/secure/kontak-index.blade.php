@@ -4,30 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Admin - Puskesmas Buntok</title>
+    <title>Ajuan - Puskesmas Buntok</title>
     <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <link rel="stylesheet" href="../admin/css/styles.min.css" />
 </head>
 
 <body>
-    <style>
-        .chart-container {
-            height: 400px;
-        }
-
-        .chart {
-            width: 100%;
-            height: 100%;
-        }
-
-        .summary-section {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-    </style>
+    <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
         data-sidebar-position="fixed" data-header-position="fixed">
+        <!-- Sidebar Start -->
         <aside class="left-sidebar">
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
@@ -154,7 +140,7 @@
                         </li>
                         <li class="nav-small-cap">
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">Profill</span>
+                            <span class="hide-menu">Profile</span>
                         </li>
                         <li class="sidebar-item">
                             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
@@ -173,7 +159,6 @@
                 </nav>
             </div>
         </aside>
-        <!--  Sidebar End -->
         <!--  Main wrapper -->
         <div class="body-wrapper">
             <!--  Header Start -->
@@ -207,126 +192,56 @@
                                         <a href="javascript:void(0)"
                                             class="d-flex align-items-center gap-2 dropdown-item">
                                             <i class="ti ti-user fs-6"></i>
-                                            <p class="mb-0 fs-3">Halo, {{ Auth::guard('admin')->user()->name }}</p>
-                                        </a>
-                                        <a href="#" class="btn btn-outline-primary mx-3 mt-2 d-block"
-                                            onclick="confirmLogout(event);">
-                                            Logout
-                                        </a>
-                                        <form id="logout-form-dropdown" action="{{ route('admin.logout') }}"
-                                            method="POST" style="display: none;">
-                                            @csrf
-                                        </form>
+                                            <p class="mb-0 fs-3">My Profile</p>
+                                            <a href="./authentication-login.html"
+                                                class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
                                     </div>
                                 </div>
-
                             </li>
                         </ul>
                     </div>
                 </nav>
             </header>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="chart-container mb-4">
-                            <h3 class="text-center">Grafik Pengunjung</h3>
-                            <div id="visitorsChart" class="chart"></div>
-                        </div>
-                        <div class="chart-container mb-4">
-                            <h3 class="text-center">Grafik Pendaftar Nomor Antrian</h3>
-                            <div id="queueChart" class="chart"></div>
-                        </div>
-                        <div class="chart-container mb-4">
-                            <h3 class="text-center">Grafik Pendaftar Akun</h3>
-                            <div id="registrationChart" class="chart"></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="summary-section">
-                            <h3>Ringkasan Statistik</h3>
-                            <ul>
-                                <li>Pengunjung Bulan Ini: {{ $totalVisitorsThisMonth }}</li>
-                                <li>Pendaftar Nomor Antrian Bulan Ini: {{ $queueRegistrationsCount }}</li>
-                                <li>Pendaftar Akun Bulan Ini: {{ $accountRegistrationsCount }}</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            <!--  Header End -->
+            <div class="container">
+                <br>
+                <br>
+                <br>
+                <h4 class="my-4">Daftar Ajuan atau Keluhan</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Telepon</th>
+                            <th>Proyek</th>
+                            <th>Subjek</th>
+                            <th>Pesan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($contacts as $contact)
+                            <tr>
+                                <td>{{ $contact->id }}</td>
+                                <td>{{ $contact->name }}</td>
+                                <td>{{ $contact->email }}</td>
+                                <td>{{ $contact->phone }}</td>
+                                <td>{{ $contact->project }}</td>
+                                <td>{{ $contact->subject }}</td>
+                                <td>{{ $contact->message }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
     </div>
     <script src="../admin/libs/jquery/dist/jquery.min.js"></script>
     <script src="../admin/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../admin/js/sidebarmenu.js"></script>
     <script src="../admin/js/app.min.js"></script>
-    <script src="../admin/libs/apexcharts/dist/apexcharts.min.js"></script>
     <script src="../admin/libs/simplebar/dist/simplebar.js"></script>
-    <script src="../admin/js/dashboard.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var visitorsData = {!! $visitorsData !!};
-            var visitorsLabels = {!! $visitorsLabels !!};
-
-            var visitorsOptions = {
-                chart: {
-                    type: 'line',
-                    height: '350px'
-                },
-                series: [{
-                    name: 'Visitors',
-                    data: visitorsData
-                }],
-                xaxis: {
-                    categories: visitorsLabels
-                }
-            };
-
-            var queueData = {!! $queueData !!};
-            var queueLabels = {!! $queueLabels !!};
-
-            var queueOptions = {
-                chart: {
-                    type: 'line',
-                    height: '350px'
-                },
-                series: [{
-                    name: 'Jumlah Nomor Antrian',
-                    data: queueData
-                }],
-                xaxis: {
-                    categories: queueLabels
-                }
-            };
-
-            var registrationData = {!! $registrationData !!};
-            var registrationLabels = {!! $registrationLabels !!};
-
-            var registrationOptions = {
-                chart: {
-                    type: 'line',
-                    height: '350px'
-                },
-                series: [{
-                    name: 'Jumlah Akun',
-                    data: registrationData
-                }],
-                xaxis: {
-                    categories: registrationLabels
-                }
-            };
-
-            var visitorsChart = new ApexCharts(document.querySelector("#visitorsChart"), visitorsOptions);
-            var queueChart = new ApexCharts(document.querySelector("#queueChart"), queueOptions);
-            var registrationChart = new ApexCharts(document.querySelector("#registrationChart"),
-                registrationOptions);
-
-            visitorsChart.render();
-            queueChart.render();
-            registrationChart.render();
-        });
-    </script>
     <script>
         function confirmLogout(event) {
             event.preventDefault();

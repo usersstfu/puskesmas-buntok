@@ -4,35 +4,75 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Admin - Puskesmas Buntok</title>
-    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
-    <link rel="stylesheet" href="../admin/css/styles.min.css" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Detail Pengguna - {{ $user->name }} - Puskesmas Buntok</title>
+    <link rel="shortcut icon" type="image/png" href="/admin/images/logos/favicon.png" />
+    <link rel="stylesheet" href="/admin/css/styles.min.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        table {
+            margin-top: 30px;
+        }
+
+        table th,
+        table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .modal-title {
+            font-weight: bold;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+        }
+    </style>
 </head>
 
 <body>
-    <style>
-        .chart-container {
-            height: 400px;
-        }
-
-        .chart {
-            width: 100%;
-            height: 100%;
-        }
-
-        .summary-section {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-    </style>
+    <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
         data-sidebar-position="fixed" data-header-position="fixed">
+        <!-- Sidebar Start -->
         <aside class="left-sidebar">
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
                     <a href="{{ route('admin.dashboard') }}" class="text-nowrap logo-img">
-                        <img class="mx-4" src="../admin/images/logos/logo.jpg" width="170" alt="" />
+                        <img class="mx-4" src="/admin/images/logos/logo.jpg" width="170" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8"></i>
@@ -154,7 +194,7 @@
                         </li>
                         <li class="nav-small-cap">
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">Profill</span>
+                            <span class="hide-menu">Profil</span>
                         </li>
                         <li class="sidebar-item">
                             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
@@ -173,7 +213,6 @@
                 </nav>
             </div>
         </aside>
-        <!--  Sidebar End -->
         <!--  Main wrapper -->
         <div class="body-wrapper">
             <!--  Header Start -->
@@ -207,125 +246,83 @@
                                         <a href="javascript:void(0)"
                                             class="d-flex align-items-center gap-2 dropdown-item">
                                             <i class="ti ti-user fs-6"></i>
-                                            <p class="mb-0 fs-3">Halo, {{ Auth::guard('admin')->user()->name }}</p>
-                                        </a>
-                                        <a href="#" class="btn btn-outline-primary mx-3 mt-2 d-block"
-                                            onclick="confirmLogout(event);">
-                                            Logout
-                                        </a>
-                                        <form id="logout-form-dropdown" action="{{ route('admin.logout') }}"
-                                            method="POST" style="display: none;">
-                                            @csrf
-                                        </form>
+                                            <p class="mb-0 fs-3">My Profile</p>
+                                            <a href="./authentication-login.html"
+                                                class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
                                     </div>
                                 </div>
-
                             </li>
                         </ul>
                     </div>
                 </nav>
             </header>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="chart-container mb-4">
-                            <h3 class="text-center">Grafik Pengunjung</h3>
-                            <div id="visitorsChart" class="chart"></div>
+            <br>
+            <br>
+            <div class="container mt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-4">Detail Pengguna</h3>
+                        <p><strong>Nama:</strong> {{ $user->name }}</p>
+                        <p><strong>Email:</strong> {{ $user->email }}</p>
+                        <p><strong>No. Hp:</strong> {{ $user->phone_number }}</p>
+                        <p><strong>Agama:</strong> {{ $user->religion }}</p>
+                        <p><strong>Pekerjaan:</strong> {{ $user->occupation }}</p>
+                        <p><strong>Tanggal Lahir:</strong> {{ $user->birthdate }}</p>
+                        <p><strong>Alamat:</strong> {{ $user->address }}</p>
+                        <p><strong>NIK:</strong> {{ $user->nik }}</p>
+                        <br>
+                        <h5 class="card-title mb-4">Dokumen Identitas :</h5>
+                        <div class="mb-4">
+                            <label for="ktp" class="form-label">KTP: @if ($user->ktp)
+                                    <span class="badge bg-success">Berkas Ada</span>
+                                @else
+                                    <span class="badge bg-danger">Berkas Belum Ada</span>
+                                @endif
+                            </label>
+                            <div class="mb-2">
+                                <a href="{{ asset('storageLink/public/' . $user->ktp) }}" target="_blank">Lihat
+                                    KTP</a>
+                            </div>
                         </div>
-                        <div class="chart-container mb-4">
-                            <h3 class="text-center">Grafik Pendaftar Nomor Antrian</h3>
-                            <div id="queueChart" class="chart"></div>
+                        <div class="mb-4">
+                            <label for="ktp" class="form-label">BPJS: @if ($user->bpjs_card)
+                                    <span class="badge bg-success">Berkas Ada</span>
+                                @else
+                                    <span class="badge bg-danger">Berkas Belum Ada</span>
+                                @endif
+                            </label>
+                            <div class="mb-2">
+                                <a href="{{ asset('storageLink/public/' . $user->bpjs_card) }}" target="_blank">Lihat
+                                    BPJS</a>
+                            </div>
                         </div>
-                        <div class="chart-container mb-4">
-                            <h3 class="text-center">Grafik Pendaftar Akun</h3>
-                            <div id="registrationChart" class="chart"></div>
+                        <div class="mb-4">
+                            <label for="ktp" class="form-label">Kartu Puskesmas: @if ($user->puskesmas_card)
+                                    <span class="badge bg-success">Berkas Ada</span>
+                                @else
+                                    <span class="badge bg-danger">Berkas Belum Ada</span>
+                                @endif
+                            </label>
+                            <div class="mb-2">
+                                <a href="{{ asset('storageLink/public/' . $user->puskesmas_card) }}"
+                                    target="_blank">Lihat
+                                    Kartu Puskesmas</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="summary-section">
-                            <h3>Ringkasan Statistik</h3>
-                            <ul>
-                                <li>Pengunjung Bulan Ini: {{ $totalVisitorsThisMonth }}</li>
-                                <li>Pendaftar Nomor Antrian Bulan Ini: {{ $queueRegistrationsCount }}</li>
-                                <li>Pendaftar Akun Bulan Ini: {{ $accountRegistrationsCount }}</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <a href="{{ route('admin.daftar-pengguna') }}" class="btn btn-primary">Kembali ke Daftar
+                        Pengguna</a>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-    <script src="../admin/libs/jquery/dist/jquery.min.js"></script>
-    <script src="../admin/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../admin/js/sidebarmenu.js"></script>
-    <script src="../admin/js/app.min.js"></script>
-    <script src="../admin/libs/apexcharts/dist/apexcharts.min.js"></script>
-    <script src="../admin/libs/simplebar/dist/simplebar.js"></script>
-    <script src="../admin/js/dashboard.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="/admin/libs/jquery/dist/jquery.min.js"></script>
+    <script src="/admin/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/admin/js/sidebarmenu.js"></script>
+    <script src="/admin/js/app.min.js"></script>
+    <script src="/admin/libs/simplebar/dist/simplebar.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var visitorsData = {!! $visitorsData !!};
-            var visitorsLabels = {!! $visitorsLabels !!};
-
-            var visitorsOptions = {
-                chart: {
-                    type: 'line',
-                    height: '350px'
-                },
-                series: [{
-                    name: 'Visitors',
-                    data: visitorsData
-                }],
-                xaxis: {
-                    categories: visitorsLabels
-                }
-            };
-
-            var queueData = {!! $queueData !!};
-            var queueLabels = {!! $queueLabels !!};
-
-            var queueOptions = {
-                chart: {
-                    type: 'line',
-                    height: '350px'
-                },
-                series: [{
-                    name: 'Jumlah Nomor Antrian',
-                    data: queueData
-                }],
-                xaxis: {
-                    categories: queueLabels
-                }
-            };
-
-            var registrationData = {!! $registrationData !!};
-            var registrationLabels = {!! $registrationLabels !!};
-
-            var registrationOptions = {
-                chart: {
-                    type: 'line',
-                    height: '350px'
-                },
-                series: [{
-                    name: 'Jumlah Akun',
-                    data: registrationData
-                }],
-                xaxis: {
-                    categories: registrationLabels
-                }
-            };
-
-            var visitorsChart = new ApexCharts(document.querySelector("#visitorsChart"), visitorsOptions);
-            var queueChart = new ApexCharts(document.querySelector("#queueChart"), queueOptions);
-            var registrationChart = new ApexCharts(document.querySelector("#registrationChart"),
-                registrationOptions);
-
-            visitorsChart.render();
-            queueChart.render();
-            registrationChart.render();
-        });
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
     </script>
     <script>
         function confirmLogout(event) {

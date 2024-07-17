@@ -8,6 +8,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AntrianSetting;
 use App\Models\User;
+use Phpml\Dataset\CsvDataset;
+use Phpml\Regression\LeastSquares;
+use Phpml\ModelManager;
+use League\Csv\Reader;
+use App\Models\RiwayatNomorAntrian;
 
 class DaftarAntrianController extends Controller
 {
@@ -54,47 +59,180 @@ class DaftarAntrianController extends Controller
         $nomorAntrian->nama = $user->name;
         $nomorAntrian->nik = $user->nik;
         $nomorAntrian->ruangan = $ruangan;
+        $nomorAntrian->ruangan_asal = $ruangan;
         $nomorAntrian->user_id = $user->id;
-        $nomorAntrian->status_prioritas = 1;
 
         try {
             $birthdate = Carbon::createFromFormat('Y-m-d', $user->birthdate);
             $usia = $birthdate->diffInYears(Carbon::now());
-            $prioritas = $usia >= 60 ? 'usia' : 'umum';
+            if ($usia >= 60) {
+                $nomorAntrian->status_prioritas = 10;
+                $nomorAntrian->prioritas = 'Usia';
+            } else {
+                $nomorAntrian->status_prioritas = 1;
+                $nomorAntrian->prioritas = 'Umum';
+            }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Invalid birthdate format. Please enter the birthdate in the format YYYY-MM-DD.');
         }
 
+        if ($user->bpjs_card) {
+            $nomorAntrian->status_pembayaran = 'BPJS';
+        } else {
+            $nomorAntrian->status_pembayaran = 'Belum Lunas';
+        }
+
         $kodeRuangan = '';
+        $thisRuangan = '';
         switch ($ruangan) {
             case 'poli_umum':
                 $kodeRuangan = 'A';
+                $thisRuangan = '1';
                 break;
             case 'poli_gigi':
                 $kodeRuangan = 'B';
+                $thisRuangan = '2';
                 break;
             case 'poli_kia':
                 $kodeRuangan = 'C';
+                $thisRuangan = '3';
                 break;
             case 'poli_anak':
                 $kodeRuangan = 'D';
+                $thisRuangan = '4';
                 break;
             case 'lab':
                 $kodeRuangan = 'LAB';
+                $thisRuangan = '5';
                 break;
             case 'apotik':
                 $kodeRuangan = 'APT';
+                $thisRuangan = '6';
                 break;
             default:
                 break;
         }
 
-        $lastQueue = NomorAntrian::where('ruangan', $ruangan)->latest()->first();
-        $lastQueueNumber = $lastQueue ? intval(substr($lastQueue->nomor, 1)) : 0;
+        $lastQueueToday = NomorAntrian::whereDate('created_at', $today)->latest()->first();
+        $lastQueueNumber = $lastQueueToday ? intval(substr($lastQueueToday->nomor, 1)) : 0;
         $nomorAntrian->nomor = $kodeRuangan . ($lastQueueNumber + 1);
-        $nomorAntrian->prioritas = $prioritas;
+        $waktuTotalSistem = $this->predictAntrian($lastQueueNumber + 1, $thisRuangan, $nomorAntrian->status_prioritas, strtotime($nomorAntrian->created_at));
+        $nomorAntrian->waktu_total_sistem = $waktuTotalSistem;
         $nomorAntrian->save();
 
         return redirect()->route('lihat-antrian')->with('success', 'Nomor antrian Anda telah didaftarkan.');
+    }
+
+    public function pindahKeRiwayat()
+    {
+        $nomorAntrian = NomorAntrian::all();
+        foreach ($nomorAntrian as $antrian) {
+            $riwayat = new RiwayatNomorAntrian([
+                'nama' => $antrian->nama,
+                'nik' => $antrian->nik,
+                'ruangan' => $antrian->ruangan,
+                'nomor' => $antrian->nomor,
+                'created_at' => $antrian->created_at,
+                'status' => 'sedang_antri',
+                'waktu_dilayani' => null,
+                'waktu_total_sistem' => $antrian->waktu_total_sistem,
+                'riwayat_waktu' => null,
+                'waktu' => null,
+                'prioritas' => $antrian->prioritas,
+                'user_id' => $antrian->user_id,
+                'status_prioritas' => $antrian->status_prioritas,
+                'ruangan_asal' => $antrian->ruangan_asal,
+            ]);
+            $riwayat->save();
+            $antrian->delete();
+        }
+    }
+
+    private function predictAntrian($nomor, $ruangan, $status_prioritas, $created_at)
+    {
+        $modelPath = public_path('model/antrianModel.pkl');
+
+        if (!file_exists($modelPath)) {
+            return response()->json(['error' => 'Model file not found'], 404);
+        }
+
+        $modelManager = new ModelManager();
+        $regression = $modelManager->restoreFromFile(($modelPath));
+        $prediksi = $regression->predict([[$nomor, $ruangan, $status_prioritas, $created_at]]);
+
+        return $prediksi[0];
+    }
+
+    public function trainModel()
+    {
+        $csvFile = public_path('data_antrian.csv');
+        $handle = fopen($csvFile, 'r');
+
+        if ($handle === false) {
+            return response()->json(['error' => 'Failed to open CSV file'], 400);
+        }
+
+        $samples = [];
+        $labels = [];
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $jsonData = $row[count($row) - 2];
+            $data = json_decode($jsonData, true);
+
+            if ($data === null) {
+                continue;
+            }
+
+            $samples[] = [
+                intval(substr($row[0], 1)),
+                intval($this->ruanganToNumeric($row[1])),
+                intval($row[2]),
+            ];
+            $labels[] = $data;
+        }
+
+        fclose($handle);
+
+        $regression = new LeastSquares();
+        $regression->train($samples, $labels);
+
+        $modelPath = public_path('model/antrianModel.pkl');
+        $modelManager = new ModelManager();
+        $modelManager->saveToFile($regression, $modelPath);
+
+        return response()->json(['message' => 'Model trained successfully']);
+    }
+
+    public function predict(Request $request)
+    {
+        $nomor = intval(substr($request->input('nomor'), 1));
+        $ruangan = intval($this->ruanganToNumeric($request->input('ruangan')));
+        $status_prioritas = intval($request->input('status_prioritas'));
+
+        $modelPath = public_path('model/antrianModel.pkl');
+
+        if (!file_exists($modelPath)) {
+            return response()->json(['error' => 'Model file not found'], 404);
+        }
+
+        $modelManager = new ModelManager();
+        $regression = $modelManager->restoreFromFile(($modelPath));
+
+        $prediksi = $regression->predict([[$nomor, $ruangan, $status_prioritas]]);
+
+        return response()->json(['predicted_wait_time' => $prediksi]);
+    }
+
+    private function ruanganToNumeric($ruangan)
+    {
+        $map = [
+            'poli_umum' => '1',
+            'poli_gigi' => '2',
+            'poli_kia' => '3',
+            'poli_anak' => '4',
+            'lab' => '5',
+            'apotik' => '6',
+        ];
+        return isset($map[$ruangan]) ? $map[$ruangan] : 0;
     }
 }

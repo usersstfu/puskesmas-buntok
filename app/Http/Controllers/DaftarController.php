@@ -26,7 +26,7 @@ class DaftarController extends Controller
             'bpjs_card' => 'nullable|file|max:2048',
             'puskesmas_card' => 'nullable|file|max:2048',
             'nik' => 'required|string|max:255|unique:users,nik',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = new User();

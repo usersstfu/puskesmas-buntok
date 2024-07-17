@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Edit Profile - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -148,7 +149,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Edit Profile</h5>
                         <!-- Form -->
-                        <form method="POST" action="{{ route('updateprofile') }}">
+                        <form method="POST" action="{{ route('updateprofile') }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="mb-3">
@@ -191,37 +192,38 @@
                                 <input type="text" class="form-control" id="nik" name="nik"
                                     value="{{ $user->nik }}">
                             </div>
+                            <div class="mb-3">
+                                <label for="ktp">KTP:</label>
+                                <input type="file" class="form-control" name="ktp" id="ktp">
+                                @if ($user->ktp)
+                                    <p>Current File: <a href="{{ asset('storageLink/public/' . $user->ktp) }}"
+                                            target="_blank">View KTP</a></p>
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="bpjs_card">Kartu BPJS:</label>
+                                <input type="file" class="form-control" name="bpjs_card" id="bpjs_card">
+                                @if ($user->bpjs_card)
+                                    <p>Current File: <a href="{{ asset('storageLink/public/' . $user->bpjs_card) }}"
+                                            target="_blank">View BPJS Card</a></p>
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="puskesmas_card">Kartu Berobat Puskesmas:</label>
+                                <input type="file" class="form-control" name="puskesmas_card"
+                                    id="puskesmas_card">
+                                @if ($user->puskesmas_card)
+                                    <p>Current File: <a href="{{ asset('storageLink/public/' . $user->puskesmas_card) }}"
+                                            target="_blank">View Puskesmas Card</a></p>
+                                @endif
+                            </div>
                             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                         </form>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Dokumen Identitas</h5>
-                        @if ($user->ktp)
-                            <p><strong>KTP:</strong> <img src="{{ asset('storage/' . $user->ktp) }}"
-                                    alt="KTP Pengguna"></p>
-                        @endif
-                        @if ($user->bpjs_card)
-                            <p><strong>Kartu BPJS:</strong> <img src="{{ asset('storage/' . $user->bpjs_card) }}"
-                                    alt="Kartu BPJS Pengguna"></p>
-                        @endif
-                        @if ($user->puskesmas_card)
-                            <p><strong>Kartu Berobat Puskesmas:</strong> <img
-                                    src="{{ asset('storage/' . $user->puskesmas_card) }}"
-                                    alt="Kartu Berobat Puskesmas Pengguna"></p>
-                        @endif
-                        @if (!$user->ktp && !$user->bpjs_card && !$user->puskesmas_card)
-                            <p>Tidak ada dokumen identitas yang tersedia.</p>
-                        @endif
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-
 
     <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
         <div class="container py-5">

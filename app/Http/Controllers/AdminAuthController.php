@@ -9,6 +9,11 @@ use App\Models\Admin;
 use App\Models\User;
 use App\Models\NomorAntrian;
 use App\Models\AntrianSetting;
+use App\Models\Visitor;
+use App\Models\RiwayatNomorAntrian;
+use App\Models\Contact;
+use Phpml\ModelManager;
+use Carbon\Carbon;
 
 class AdminAuthController extends Controller
 {
@@ -34,12 +39,65 @@ class AdminAuthController extends Controller
 
     public function dashboard()
     {
-        return view('secure.dashboard');
+        $visitorsData = Visitor::selectRaw('COUNT(*) as count, DATE(created_at) as date')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count')
+            ->toArray();
+
+        $visitorsLabels = Visitor::selectRaw('DATE(created_at) as date')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('date')
+            ->toArray();
+
+        $totalVisitorsThisMonth = Visitor::whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->count();
+
+        $queueData = RiwayatNomorAntrian::selectRaw('COUNT(*) as count, DATE(created_at) as date')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count')
+            ->toArray();
+
+        $queueRegistrationsCount = RiwayatNomorAntrian::whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->count();
+
+        $registrationData = User::selectRaw('COUNT(*) as count, DATE(created_at) as date')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count')
+            ->toArray();
+
+        $accountRegistrationsCount = User::whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->count();
+
+        $labels = collect(range(1, count($queueData)))->map(function ($i) {
+            return Carbon::now()->startOfMonth()->addDays($i - 1)->format('M d');
+        })->toArray();
+
+        return view('secure.dashboard', [
+            'visitorsData' => json_encode($visitorsData),
+            'visitorsLabels' => json_encode($labels),
+            'queueData' => json_encode($queueData),
+            'queueLabels' => json_encode($labels),
+            'registrationData' => json_encode($registrationData),
+            'registrationLabels' => json_encode($labels),
+            'queueRegistrationsCount' => $queueRegistrationsCount,
+            'accountRegistrationsCount' => $accountRegistrationsCount,
+            'totalVisitorsThisMonth' => $totalVisitorsThisMonth,
+        ]);
     }
+
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
         return redirect()->route('admin.login');
     }
 
@@ -47,6 +105,41 @@ class AdminAuthController extends Controller
     {
         $antrianSetting = AntrianSetting::first();
         return view('secure.pengaturan-antrian', compact('antrianSetting'));
+    }
+
+    public function showKontakPage()
+    {
+        $contacts = Contact::all();
+        return view('secure.kontak-index', compact('contacts'));
+    }
+
+    public function showPrioritasPage()
+    {
+        $allQueues = NomorAntrian::where('status', '!=', 'sudah_dilayani')->orderBy('nomor')->get();
+
+        return view('secure.prioritas', compact('allQueues'));
+    }
+
+    public function indexRiwayatAntrian(Request $request)
+    {
+        $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
+        $query = RiwayatNomorAntrian::query();
+
+        if ($tanggal) {
+            $query->whereDate('created_at', '=', $tanggal);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('nomor', 'like', "%{$search}%");
+            });
+        }
+
+        $riwayatAntrian = $query->get();
+
+        return view('secure.riwayat-antrian', ['riwayatAntrian' => $riwayatAntrian]);
     }
 
     public function update(Request $request)
@@ -67,6 +160,13 @@ class AdminAuthController extends Controller
     {
         $users = User::all();
         return view('secure.daftar-pengguna', ['users' => $users]);
+    }
+
+    public function showUserDetail($id)
+    {
+        $user = User::findOrFail($id);
+
+        return view('secure.detail-pengguna', ['user' => $user]);
     }
 
     public function getQueues()
@@ -99,11 +199,20 @@ class AdminAuthController extends Controller
             'ruangan_tujuan' => 'required|in:poli_gigi,poli_kia,poli_anak,lab,apotik,poli_umum,daftar_tunggu',
         ]);
 
+        $ruanganTujuan = $request->input('ruangan_tujuan');
+
+        $kodeRuanganTujuan = $this->ruanganToNumeric($ruanganTujuan);
+
         $nomorAntrian = NomorAntrian::find($request->nomor_antrian);
+
+        $nomor = intval(substr($nomorAntrian->nomor, 1));
+
+        $waktuTotalSistem = $this->predictAntrian($nomor, $kodeRuanganTujuan, $nomorAntrian->status_prioritas, strtotime($nomorAntrian->created_at));
+        $nomorAntrian->waktu_total_sistem = $waktuTotalSistem;
 
         session(['ruangan_asal' => $nomorAntrian->ruangan]);
 
-        $nomorAntrian->ruangan = $request->ruangan_tujuan;
+        $nomorAntrian->ruangan = $ruanganTujuan;
 
         switch ($nomorAntrian->status) {
             case 'sedang_dilayani':
@@ -121,6 +230,34 @@ class AdminAuthController extends Controller
         $nomorAntrian->save();
 
         return redirect()->back()->with('success', 'Nomor antrian berhasil dipindahkan ke ' . $request->ruangan_tujuan . '.');
+    }
+
+    private function ruanganToNumeric($ruangan)
+    {
+        $map = [
+            'poli_umum' => '1',
+            'poli_gigi' => '2',
+            'poli_kia' => '3',
+            'poli_anak' => '4',
+            'lab' => '5',
+            'apotik' => '6',
+        ];
+        return isset($map[$ruangan]) ? $map[$ruangan] : 0;
+    }
+
+    private function predictAntrian($nomor, $ruangan, $status_prioritas, $created_at)
+    {
+        $modelPath = public_path('model/antrianModel.pkl');
+
+        if (!file_exists($modelPath)) {
+            return response()->json(['error' => 'Model file not found'], 404);
+        }
+
+        $modelManager = new ModelManager();
+        $regression = $modelManager->restoreFromFile(($modelPath));
+        $prediksi = $regression->predict([[$nomor, $ruangan, $status_prioritas, $created_at]]);
+
+        return $prediksi[0];
     }
 
     private function generateUniqueNumber($existingNumber)
@@ -164,16 +301,59 @@ class AdminAuthController extends Controller
         return redirect()->back()->with('success', 'Nomor antrian berhasil dipindahkan ke Daftar Tunggu.');
     }
 
+    public function berikanPrioritas(Request $request)
+    {
+        $request->validate([
+            'nomor_antrian' => 'required|exists:nomorantrian,id',
+            'alasan_prioritas' => 'required|string|max:255',
+        ]);
+
+        $nomorAntrian = NomorAntrian::find($request->nomor_antrian);
+
+        $nomorAntrian->prioritas = 'didahulukan';
+        $nomorAntrian->status_prioritas = 20;
+        $nomorAntrian->alasan_prioritas = $request->alasan_prioritas;
+        $nomorAntrian->save();
+
+        return redirect()->back()->with('success', 'Nomor antrian ' . $nomorAntrian->nomor . ' telah diberikan prioritas dengan alasan: ' . $request->alasan_prioritas);
+    }
+
+    public function updateStatusPembayaran(Request $request)
+    {
+        $request->validate([
+            'nomor_antrian_id' => 'required|exists:nomorantrian,id',
+            'status_pembayaran' => 'required|in:Belum Lunas,Sudah Lunas,BPJS',
+        ]);
+
+        $nomorAntrian = NomorAntrian::find($request->nomor_antrian_id);
+        $nomorAntrian->status_pembayaran = $request->status_pembayaran;
+        $nomorAntrian->save();
+
+        return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui.');
+    }
+
 
     public function showPoliUmumPage()
     {
-        $allQueues = $this->getQueues();
-        $currentQueue = $this->getCurrentQueue('poli_umum');
+        $today = Carbon::today()->toDateString();
+
+        $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get()
+            ->groupBy('ruangan');
+
+        $currentQueue = NomorAntrian::whereDate('created_at', $today)
+            ->where('ruangan', 'poli_umum')
+            ->where('status', 'sedang_dilayani')
+            ->orderBy('nomor')
+            ->first();
+
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
         $nextQueues = [];
         foreach ($allQueues as $ruangan => $queues) {
-            $nextQueue = NomorAntrian::where('status', 'sedang_antri')
+            $nextQueue = NomorAntrian::whereDate('created_at', $today)
+                ->where('status', 'sedang_antri')
                 ->where('ruangan', $ruangan)
                 ->orderBy('nomor')
                 ->first();
@@ -188,7 +368,6 @@ class AdminAuthController extends Controller
             'nextQueues' => $nextQueues,
         ]);
     }
-
 
     public function startQueuePoliUmum()
     {
@@ -230,7 +409,7 @@ class AdminAuthController extends Controller
 
         $nomorAntrian = NomorAntrian::findOrFail($request->nomor_antrian);
 
-        $ruangan_asal = session('ruangan_asal');
+        $ruangan_asal = $nomorAntrian->ruangan_asal;
 
         $nomorAntrian->status = 'sudah_dilayani';
 
@@ -255,13 +434,25 @@ class AdminAuthController extends Controller
 
     public function showGigiUmumPage()
     {
-        $allQueues = $this->getQueues();
-        $currentQueue = $this->getCurrentQueue('poli_gigi');
+        $today = Carbon::today()->toDateString();
+
+        $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get()
+            ->groupBy('ruangan');
+
+        $currentQueue = NomorAntrian::whereDate('created_at', $today)
+            ->where('ruangan', 'poli_gigi')
+            ->where('status', 'sedang_dilayani')
+            ->orderBy('nomor')
+            ->first();
+
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
         $nextQueues = [];
         foreach ($allQueues as $ruangan => $queues) {
-            $nextQueue = NomorAntrian::where('status', 'sedang_antri')
+            $nextQueue = NomorAntrian::whereDate('created_at', $today)
+                ->where('status', 'sedang_antri')
                 ->where('ruangan', $ruangan)
                 ->orderBy('nomor')
                 ->first();
@@ -285,7 +476,7 @@ class AdminAuthController extends Controller
 
         $nomorAntrian = NomorAntrian::findOrFail($request->nomor_antrian);
 
-        $ruangan_asal = session('ruangan_asal');
+        $ruangan_asal = $nomorAntrian->ruangan_asal;
 
         $nomorAntrian->status = 'sudah_dilayani';
 
@@ -342,13 +533,25 @@ class AdminAuthController extends Controller
 
     public function showKiaUmumPage()
     {
-        $allQueues = $this->getQueues();
-        $currentQueue = $this->getCurrentQueue('poli_kia');
+        $today = Carbon::today()->toDateString();
+
+        $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get()
+            ->groupBy('ruangan');
+
+        $currentQueue = NomorAntrian::whereDate('created_at', $today)
+            ->where('ruangan', 'poli_kia')
+            ->where('status', 'sedang_dilayani')
+            ->orderBy('nomor')
+            ->first();
+
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
         $nextQueues = [];
         foreach ($allQueues as $ruangan => $queues) {
-            $nextQueue = NomorAntrian::where('status', 'sedang_antri')
+            $nextQueue = NomorAntrian::whereDate('created_at', $today)
+                ->where('status', 'sedang_antri')
                 ->where('ruangan', $ruangan)
                 ->orderBy('nomor')
                 ->first();
@@ -404,7 +607,7 @@ class AdminAuthController extends Controller
 
         $nomorAntrian = NomorAntrian::findOrFail($request->nomor_antrian);
 
-        $ruangan_asal = session('ruangan_asal');
+        $ruangan_asal = $nomorAntrian->ruangan_asal;
 
         $nomorAntrian->status = 'sudah_dilayani';
 
@@ -428,13 +631,25 @@ class AdminAuthController extends Controller
 
     public function showAnakUmumPage()
     {
-        $allQueues = $this->getQueues();
-        $currentQueue = $this->getCurrentQueue('poli_anak');
+        $today = Carbon::today()->toDateString();
+
+        $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get()
+            ->groupBy('ruangan');
+
+        $currentQueue = NomorAntrian::whereDate('created_at', $today)
+            ->where('ruangan', 'poli_anak')
+            ->where('status', 'sedang_dilayani')
+            ->orderBy('nomor')
+            ->first();
+
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
         $nextQueues = [];
         foreach ($allQueues as $ruangan => $queues) {
-            $nextQueue = NomorAntrian::where('status', 'sedang_antri')
+            $nextQueue = NomorAntrian::whereDate('created_at', $today)
+                ->where('status', 'sedang_antri')
                 ->where('ruangan', $ruangan)
                 ->orderBy('nomor')
                 ->first();
@@ -490,7 +705,7 @@ class AdminAuthController extends Controller
 
         $nomorAntrian = NomorAntrian::findOrFail($request->nomor_antrian);
 
-        $ruangan_asal = session('ruangan_asal');
+        $ruangan_asal = $nomorAntrian->ruangan_asal;
 
         $nomorAntrian->status = 'sudah_dilayani';
 
@@ -514,13 +729,25 @@ class AdminAuthController extends Controller
 
     public function showLabUmumPage()
     {
-        $allQueues = $this->getQueues();
-        $currentQueue = $this->getCurrentQueue('lab');
+        $today = Carbon::today()->toDateString();
+
+        $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get()
+            ->groupBy('ruangan');
+
+        $currentQueue = NomorAntrian::whereDate('created_at', $today)
+            ->where('ruangan', 'lab')
+            ->where('status', 'sedang_dilayani')
+            ->orderBy('nomor')
+            ->first();
+
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
         $nextQueues = [];
         foreach ($allQueues as $ruangan => $queues) {
-            $nextQueue = NomorAntrian::where('status', 'sedang_antri')
+            $nextQueue = NomorAntrian::whereDate('created_at', $today)
+                ->where('status', 'sedang_antri')
                 ->where('ruangan', $ruangan)
                 ->orderBy('nomor')
                 ->first();
@@ -576,7 +803,7 @@ class AdminAuthController extends Controller
 
         $nomorAntrian = NomorAntrian::findOrFail($request->nomor_antrian);
 
-        $ruangan_asal = session('ruangan_asal');
+        $ruangan_asal = $nomorAntrian->ruangan_asal;
 
         $nomorAntrian->status = 'sudah_dilayani';
 
@@ -600,12 +827,25 @@ class AdminAuthController extends Controller
 
     public function showApotikUmumPage()
     {
-        $allQueues = $this->getQueues();
-        $currentQueue = $this->getCurrentQueue('apotik');
+        $today = Carbon::today()->toDateString();
+
+        $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get()
+            ->groupBy('ruangan');
+
+        $currentQueue = NomorAntrian::whereDate('created_at', $today)
+            ->where('ruangan', 'apotik')
+            ->where('status', 'sedang_dilayani')
+            ->orderBy('nomor')
+            ->first();
+
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
+
         $nextQueues = [];
         foreach ($allQueues as $ruangan => $queues) {
-            $nextQueue = NomorAntrian::where('status', 'sedang_antri')
+            $nextQueue = NomorAntrian::whereDate('created_at', $today)
+                ->where('status', 'sedang_antri')
                 ->where('ruangan', $ruangan)
                 ->orderBy('nomor')
                 ->first();
@@ -661,8 +901,7 @@ class AdminAuthController extends Controller
 
         $nomorAntrian = NomorAntrian::findOrFail($request->nomor_antrian);
 
-        // Simpan ruangan asal sebelum memindahkan
-        $ruangan_asal = session('ruangan_asal');
+        $ruangan_asal = $nomorAntrian->ruangan_asal;
 
         $nomorAntrian->status = 'sudah_dilayani';
 

@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Layanan dan Fasilitas - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -72,7 +73,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>
@@ -154,7 +154,7 @@
                             <img src="img/service-1.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Sistem Antrian Cerdas</h5>
                                 <p class="mb-4">Hemat waktu tunggu di Puskesmas. Sistem antrian pintar kami
@@ -171,7 +171,7 @@
                             <img src="img/service-2.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-5" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-5" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Rawat Jalan</h5>
                                 <p class="mb-4">Layanan Rawat Jalan Puskesmas Buntok tersedia untuk berbagai
@@ -188,7 +188,7 @@
                             <img src="img/service-3.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Pemeriksaan Umum</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan pemeriksaan
@@ -203,7 +203,7 @@
                             <img src="img/service-4.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Kesehatan Keluarga (KIA dan KB)</h5>
                                 <p class="mb-4">Puskesmas Buntok peduli kesehatan Anda dan keluarga.
@@ -220,7 +220,7 @@
                             <img src="img/service-5.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Kesehatan Gigi Dan Mulut</h5>
                                 <p class="mb-4">Jagalah kesehatan gigi dan mulut Anda di Puskesmas Buntok. Kami
@@ -236,7 +236,7 @@
                             <img src="img/service-6.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Imunisasi</h5>
                                 <p class="mb-4">Lindungi diri Anda dan keluarga dari penyakit berbahaya dengan
@@ -252,7 +252,7 @@
                             <img src="img/service-7.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Farmasi</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan farmasi untuk memenuhi
@@ -268,7 +268,7 @@
                             <img src="img/service-8.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Laboratorium</h5>
                                 <p class="mb-4">Dapatkan hasil tes yang akurat dan terpercaya di Laboratorium
@@ -283,7 +283,7 @@
                             <img src="img/service-9.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Konsultasi Gizi</h5>
                                 <p class="mb-4">Jaga kesehatan Anda dengan konsultasi gizi di Puskesmas Buntok</p>
@@ -297,7 +297,7 @@
                             <img src="img/service-10.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Klinik Sanitasi</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan Klinik Sanitasi
@@ -312,7 +312,7 @@
                             <img src="img/service-11.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Administrasi Kesehatan</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan administrasi kesehatan berupa
@@ -327,7 +327,7 @@
                             <img src="img/service-12.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Konsultasi Promosi Kesehatan</h5>
                                 <p class="mb-4">Konsultasikan cara hidup sehat dan pencegahan penyakit dengan dokter
@@ -342,7 +342,7 @@
                             <img src="img/service-13.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 270px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Pengobatan TB Paru</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan Pengobatan Tuberkulosis (TB)
@@ -359,7 +359,7 @@
                             <img src="img/service-14.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 270px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Pencegahan dan Pengendalian Penyakit (P2P)</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan P2P yang mudah diakses.</p>
@@ -373,7 +373,7 @@
                             <img src="img/service-15.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 270px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">BPJS Kesehatan dan Rujukan</h5>
                                 <p class="mb-4">Puskesmas Buntok bekerja sama dengan BPJS Kesehatan untuk
@@ -388,7 +388,7 @@
                             <img src="img/service-16.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 270px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Pemeriksaan Anak (MTBS)</h5>
                                 <p class="mb-4">Puskesmas Buntok menawarkan Pemeriksaan Anak
@@ -404,7 +404,7 @@
                             <img src="img/service-17.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Puskesmas Keliling</h5>
                                 <p class="mb-4">Puskesmas Keliling adalah layanan kesehatan yang menjangkau

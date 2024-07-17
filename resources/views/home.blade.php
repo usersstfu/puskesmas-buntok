@@ -6,6 +6,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -103,7 +104,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>
@@ -157,7 +157,6 @@
             {{ Session::get('logout_message') }}
         </div>
     @endif
-
     <div class="header-carousel owl-carousel">
         <div class="header-carousel-item">
             <img src="img/carousel-1.jpg" class="img-fluid w-100" alt="Image">
@@ -170,7 +169,7 @@
                     <p class="mb-5 fs-5">Website ini sebagai sarana publikasi untuk memberikan Informasi dan
                         gambaran tentang Puskesmas Buntok Kab. Barito Selatan
                     </p>
-                    <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="#">Daftar Antrian</a>
+                    <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="/antrian">Daftar Antrian</a>
                 </div>
             </div>
         </div>
@@ -185,7 +184,7 @@
                     <p class="mb-5 fs-5 animated slideInDown">Terwujudnya pelayanan kesehatan
                         yang prima, optimal, dan bermutu, untuk menjadikan masyarakat wilayah kerja UPT Puskesmas
                         Buntok yang sehat dan Mandiri</p>
-                    <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="#">Daftar Antrian</a>
+                    <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="/antrian">Daftar Antrian</a>
                 </div>
             </div>
         </div>
@@ -212,7 +211,7 @@
                             <img src="img/service-1.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Sistem Antrian Cerdas</h5>
                                 <p class="mb-4">Hemat waktu tunggu di Puskesmas. Sistem antrian pintar kami
@@ -228,7 +227,7 @@
                             <img src="img/service-2.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-5" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-5" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Rawat Jalan</h5>
                                 <p class="mb-4">Layanan Rawat Jalan Puskesmas Buntok tersedia untuk berbagai kondisi
@@ -244,7 +243,7 @@
                             <img src="img/service-3.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Pemeriksaan Umum</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan pemeriksaan
@@ -259,7 +258,7 @@
                             <img src="img/service-4.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Kesehatan Keluarga (KIA dan KB)</h5>
                                 <p class="mb-4">Puskesmas Buntok peduli kesehatan Anda dan keluarga.
@@ -275,7 +274,7 @@
                             <img src="img/service-5.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Kesehatan Gigi Dan Mulut</h5>
                                 <p class="mb-4">Jagalah kesehatan gigi dan mulut Anda di Puskesmas Buntok. Kami
@@ -291,7 +290,7 @@
                             <img src="img/service-6.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Imunisasi</h5>
                                 <p class="mb-4">Lindungi diri Anda dan keluarga dari penyakit berbahaya dengan
@@ -307,7 +306,7 @@
                             <img src="img/service-7.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Farmasi</h5>
                                 <p class="mb-4">Puskesmas Buntok menyediakan layanan farmasi untuk memenuhi kebutuhan
@@ -322,7 +321,7 @@
                             <img src="img/service-8.jpg" class="img-fluid rounded-top w-100" alt=""
                                 style="object-fit: cover;">
                         </div>
-                        <div class="service-content rounded-bottom bg-light p-4" style="height: 250px;">
+                        <div class="service-content rounded-bottom bg-light p-4" style="height: 300px;">
                             <div class="service-content-inner">
                                 <h5 class="mb-4">Laboratorium</h5>
                                 <p class="mb-4">Dapatkan hasil tes yang akurat dan terpercaya di Laboratorium
@@ -365,97 +364,7 @@
             </div>
         </div>
     </div>
-
-    <div class="container-fluid feature">
-        <div class="container py-5">
-            <div class="section-title mb-5 text-center wow fadeInUp" data-wow-delay="0.1s">
-                <h4 class="sub-title px-3 mb-0">Struktur Organisasi</h4>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid struktur">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-sm-12 col-md-6 col-lg-4 text-center mb-4">
-                    <div class="card">
-                        <img src="img/team-8.jpg" style="width: 170px; height: 220px;" class="card-img-top mx-auto"
-                            alt="KAPUS">
-                        <div class="card-body">
-                            <h5 class="card-title bold"><strong>Dr. Zulfantri</strong></h5>
-                            <p class="card-text">Kepala Puskesmas</p>
-                            <p class="card-text text-small">NIP.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row img2 justify-content-center aos-init aos-animate" data-aos="fade-down">
-                    <div class="col-sm-12 col-md-6 col-lg-4 offset-md-6  text-center" id="sekban-parent">
-                        <div class="card">
-                            <img src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
-                                style="width: 170px; height: 220px;" class="card-img-top mx-auto" alt="SEKDIS">
-                            <div class="card-body">
-                                <h5 class="card-title bold"><strong>-</strong></h5>
-                                <p class="card-text">Sekretaris Puskesmas</p>
-                                <p class="card-text text-small">NIP. -</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row img3 justify-content-center aos-init aos-animate" data-aos="fade-down">
-                    <div class="col-sm-12 col-md-6 col-lg-3 text-center col align-self-center">
-                        <div class="card">
-                            <img src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
-                                style="width: 170px; height: 220px;" class="card-img-top mx-auto" alt="KABID">
-                            <div class="card-body">
-                                <h5 class="card-title bold"><strong>-</strong></h5>
-                                <p class="card-text">Kepala Ruangan</p>
-                                <p class="card-text text-small">NIP. -</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6 col-lg-3 text-center col align-self-center">
-                        <div class="card">
-                            <img src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
-                                style="width: 170px; height: 220px;" class="card-img-top mx-auto" alt="KABID">
-                            <div class="card-body">
-                                <h5 class="card-title bold"><strong>-</strong></h5>
-                                <p class="card-text">Kepala Ruangan</p>
-                                <p class="card-text text-small">NIP. -</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6 col-lg-3 text-center col align-self-center">
-                        <div class="card">
-                            <img src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
-                                style="width: 170px; height: 220px;" class="card-img-top mx-auto" alt="KABID">
-                            <div class="card-body">
-                                <h5 class="card-title bold"><strong>-</strong></h5>
-                                <p class="card-text">Kepala Ruangan</p>
-                                <p class="card-text text-small">NIP. -</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6 col-lg-3 text-center col align-self-center">
-                        <div class="card">
-                            <img src="https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg"
-                                style="width: 170px; height: 220px;" class="card-img-top mx-auto" alt="KABID">
-                            <div class="card-body">
-                                <h5 class="card-title bold"><strong>-</strong></h5>
-                                <p class="card-text">Kepala Ruangan</p>
-                                <p class="card-text text-small">NIP. -</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="col-12 text-center wow fadeInUp" data-wow-delay="0.2s">
-                <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="/struktur">Lihat
-                    Selengkapnya</a>
-            </div>
-        </div>
-    </div>
     <br>
-
     <div class="container-fluid appointment py-5">
         <div class="container py-5">
             <div class="row g-5 align-items-center">
@@ -490,7 +399,7 @@
                                             antrian pengguna sebentar lagi akan dipanggil</p>
                                     </div>
                                     <div class="text-start mb-4">
-                                        <a href="#"
+                                        <a href="/antrian"
                                             class="btn btn-primary rounded-pill text-white py-3 px-5">Lihat
                                             Detail</a>
                                     </div>
@@ -507,57 +416,26 @@
                 </div>
                 <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.4s">
                     <div class="appointment-form rounded p-5">
-                        <p class="fs-4 text-uppercase text-primary">Pendaftaran Akun Puskesmas Buntok</p>
-                        <p>Pendaftaran akun Puskesmas Buntok digunakan untuk Pendaftaran Nomor Antrian Pengguna.
-                        </p>
-                        <h1 class="display-5 mb-4">Daftar Akun</h1>
-                        <form>
-                            <div class="row gy-3 gx-4">
-                                <div class="col-xl-6">
-                                    <input type="text"
-                                        class="form-control py-3 border-primary bg-transparent text-white"
-                                        placeholder="First Name">
-                                </div>
-                                <div class="col-xl-6">
-                                    <input type="email"
-                                        class="form-control py-3 border-primary bg-transparent text-white"
-                                        placeholder="Email">
-                                </div>
-                                <div class="col-xl-6">
-                                    <input type="phone" class="form-control py-3 border-primary bg-transparent"
-                                        placeholder="Phone">
-                                </div>
-                                <div class="col-xl-6">
-                                    <select class="form-select py-3 border-primary bg-transparent"
-                                        aria-label="Default select example">
-                                        <option selected>Your Gender</option>
-                                        <option value="1">Male</option>
-                                        <option value="2">FeMale</option>
-                                        <option value="3">Others</option>
-                                    </select>
-                                </div>
-                                <div class="col-xl-6">
-                                    <input type="date" class="form-control py-3 border-primary bg-transparent">
-                                </div>
-                                <div class="col-xl-6">
-                                    <select class="form-select py-3 border-primary bg-transparent"
-                                        aria-label="Default select example">
-                                        <option selected>Department</option>
-                                        <option value="1">Physiotherapy</option>
-                                        <option value="2">Physical Helth</option>
-                                        <option value="2">Treatments</option>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <textarea class="form-control border-primary bg-transparent text-white" name="text" id="area-text" cols="30"
-                                        rows="5" placeholder="Write Comments"></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <button type="button" class="btn btn-primary text-white w-100 py-3 px-5">Daftar
-                                        Sekarang</button>
-                                </div>
-                            </div>
-                        </form>
+                        <p class="fs-4 text-uppercase text-primary">Tata Cara dan Peraturan Penggunaan Sistem Antrian di Puskesmas
+                            Buntok</p>
+                        <p>Berikut adalah langkah-langkah untuk menggunakan sistem antrian:</p>
+                        <ul>
+                            <li>Sebelum Mendaftar Nomor Antrian atau Melihat Nomor Antrian yang Ada, Anda
+                                Daftarkan Dulu Akun Anda Di Halaman <a href="{{ route('daftar') }}">Daftar Akun</a>.
+                            </li>
+                            <li>Setelah Mendaftar, Login Ke Sistem Menggunakan Akun yang Telah Dibuat Ke Halaman <a
+                                    href="{{ route('login') }}">Login</a>.</li>
+                            <li>Jika Anda Ingin Mendaftar Nomor Antrian, Silahkan Ke Halaman <a
+                                    href="{{ route('daftarantrian') }}">Daftar Antrian</a> dan Pilih Ruangan Mana yang
+                                Ingin Anda Daftarkan.</li>
+                            <li>Anda Dapat Melihat Status Antrian dan Nomor Antrian Anda serta Nomor Antrian
+                                Ruangan Lain Di Halaman <a href="{{ route('antrian') }}">Sistem Antrian</a>.</li>
+                            <li>Datang Ke Puskesmas Sesuai dengan Nomor Antrian yang Telah Anda Dapatkan.</li>
+                            <li>Harap Bawa Tanda Pengenal Seperti KTP, SIM, atau Kartu BPJS Anda, untuk Mengklarifikasi
+                                Nomor Antrian Anda. <span style="color: red;">(Opsional)</span></li>
+                            <li>Jika Antrian Anda Masuk Dalam Daftar Tunggu, Silahkan Datangi Admin Ruangan
+                                untuk Memanggilkan Antrian Anda Kembali.</li>
+                        </ul>
                     </div>
                 </div>
             </div>

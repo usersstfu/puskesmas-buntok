@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="../admin/images/logos/favicon.png" />
     <title>Daftar Nomor Antrian - Puskesmas Buntok</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -72,7 +73,6 @@
                         <div class="dropdown-menu">
                             <a href="/sejarah" class="dropdown-item">Sejarah</a>
                             <a href="/visi" class="dropdown-item">Visi dan Misi</a>
-                            <a href="/struktur" class="dropdown-item">Struktur Organisasi</a>
                             <a href="/dokter" class="dropdown-item">Dokter</a>
                         </div>
                     </li>
@@ -148,7 +148,7 @@
                     <div class="card">
                         <div class="card-header">Daftar Nomor Antrian</div>
                         <div class="card-body">
-                            <form action="{{ route('proses.daftar') }}" method="POST">
+                            <form id="antrianForm" action="{{ route('proses.daftar') }}" method="POST">
                                 @csrf
                                 <div class="mb-3">
                                     <label for="nama" class="form-label">Nama</label>
@@ -162,7 +162,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="ruangan" class="form-label">Ruangan</label>
-                                    <select class="form-select" id="ruangan" name="ruangan">
+                                    <select class="form-select" id="ruangan" name="ruangan" required>
                                         <option selected disabled>Pilih Ruangan</option>
                                         <option value="poli_umum">Poli Umum</option>
                                         <option value="poli_gigi">Poli Gigi</option>
@@ -187,8 +187,7 @@
                                     <span class="badge bg-success">Berkas Ada</span>
                                 @else
                                     <span class="badge bg-danger">Berkas Belum Ada</span>
-                                    <h6>Anda akan dikenakan biaya Rp.15.000, karena tidak memiliki kartu BPJS
-                                    </h6>
+                                    <h6>Anda akan dikenakan biaya Rp.15.000, karena tidak memiliki kartu BPJS</h6>
                                 @endif
                             </div>
                             <div class="mb-3">
@@ -212,12 +211,44 @@
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmationModalLabel">Konfirmasi Pendaftaran</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Nama: <span id="confirmName"></span></p>
+                            <p>NIK: <span id="confirmNik"></span></p>
+                            <p>Ruangan: <span id="confirmRuangan"></span></p>
+                            <p>Tanggal: <span id="confirmDate"></span></p>
+                            <p>Status Berkas:</p>
+                            <ul>
+                                <li>Kartu BPJS: <span id="confirmBpjs" class="badge"></span></li>
+                                <li>KTP: <span id="confirmKtp" class="badge"></span></li>
+                                <li>Kartu Berobat Puskesmas: <span id="confirmPuskesmas" class="badge"></span></li>
+                            </ul>
+                            <p>Total Biaya: <span id="confirmBiaya"></span></p>
+                            <p id="additionalMessage" class="text-danger"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+                            <button type="button" class="btn btn-primary" id="confirmSubmit">Ya</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         @else
             <div class="alert alert-warning" role="alert">
                 Pendaftaran antrian tidak tersedia saat ini karena Sistem Antrian sedang dinonaktifkan.
             </div>
         @endif
     </div>
+
     <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
         <div class="container py-5">
             <div class="row g-5">
@@ -295,6 +326,77 @@
     <script src="lib/waypoints/waypoints.min.js"></script>
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('antrianForm');
+            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            const confirmSubmit = document.getElementById('confirmSubmit');
+            const userBpjs = @json($user->bpjs_card);
+            const userKtp = @json($user->ktp);
+            const userPuskesmas = @json($user->puskesmas_card);
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const name = document.getElementById('nama').value;
+                const nik = document.getElementById('nik').value;
+                const ruangan = document.getElementById('ruangan').value;
+                const ruanganText = document.querySelector('#ruangan option:checked').text;
+                const date = new Date().toLocaleDateString('id-ID');
+
+                document.getElementById('confirmName').innerText = name;
+                document.getElementById('confirmNik').innerText = nik;
+                document.getElementById('confirmRuangan').innerText = ruanganText;
+                document.getElementById('confirmDate').innerText = date;
+
+                const bpjsStatus = userBpjs ? 'Berkas Ada' : 'Berkas Belum Ada';
+                const bpjsBadgeClass = userBpjs ? 'bg-success' : 'bg-danger';
+                document.getElementById('confirmBpjs').innerText = bpjsStatus;
+                document.getElementById('confirmBpjs').className = 'badge ' + bpjsBadgeClass;
+
+                const ktpStatus = userKtp ? 'Berkas Ada' : 'Berkas Belum Ada';
+                const ktpBadgeClass = userKtp ? 'bg-success' : 'bg-danger';
+                document.getElementById('confirmKtp').innerText = ktpStatus;
+                document.getElementById('confirmKtp').className = 'badge ' + ktpBadgeClass;
+
+                const puskesmasStatus = userPuskesmas ? 'Berkas Ada' : 'Berkas Belum Ada';
+                const puskesmasBadgeClass = userPuskesmas ? 'bg-success' : 'bg-danger';
+                document.getElementById('confirmPuskesmas').innerText = puskesmasStatus;
+                document.getElementById('confirmPuskesmas').className = 'badge ' + puskesmasBadgeClass;
+
+                const biaya = userBpjs ? 'Rp. 0' : 'Rp. 15.000';
+                document.getElementById('confirmBiaya').innerText = biaya;
+
+                const additionalMessages = [];
+                if (!userBpjs) {
+                    additionalMessages.push(
+                        'Sebelum Anda Masuk ke Ruangan Pertama Anda, Harap Anda Bayar Terlebih Dahulu Ke Loket Puskesmas, Terima Kasih'
+                        );
+                }
+                if (!userPuskesmas) {
+                    additionalMessages.push(
+                        'Sebelum Anda Masuk ke Ruangan Pertama Anda, Harap Anda Membuat Kartu Berobat Puskesmas Buntok Terlebih Dahulu Ke Loket Puskesmas, Terima Kasih'
+                        );
+                }
+
+                let additionalMessageHtml = '';
+                if (additionalMessages.length > 0) {
+                    additionalMessageHtml = '<ul>';
+                    additionalMessages.forEach(function(message) {
+                        additionalMessageHtml += '<li>' + message + '</li>';
+                    });
+                    additionalMessageHtml += '</ul>';
+                }
+                document.getElementById('additionalMessage').innerHTML = additionalMessageHtml;
+
+                modal.show();
+            });
+
+            confirmSubmit.addEventListener('click', function() {
+                form.submit();
+            });
+        });
+    </script>
 </body>
 
 </html>
