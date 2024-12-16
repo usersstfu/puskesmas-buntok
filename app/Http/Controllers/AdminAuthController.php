@@ -47,12 +47,12 @@ class AdminAuthController extends Controller
             ->pluck('count')
             ->toArray();
 
-        $visitorsLabels = Visitor::selectRaw('DATE(created_at) as date')
+        $visitorsLabels = Visitor::selectRaw('DATE_FORMAT(created_at, "%d %b") as formatted_date')
             ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
             ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('date')
+            ->groupBy('formatted_date')
+            ->orderBy('formatted_date')
+            ->pluck('formatted_date')
             ->toArray();
 
         $totalVisitorsThisMonth = Visitor::whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->count();
@@ -65,6 +65,14 @@ class AdminAuthController extends Controller
             ->pluck('count')
             ->toArray();
 
+        $queueLabels = RiwayatNomorAntrian::selectRaw('DATE_FORMAT(created_at, "%d %b") as formatted_date')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('formatted_date')
+            ->orderBy('formatted_date')
+            ->pluck('formatted_date')
+            ->toArray();
+
         $queueRegistrationsCount = RiwayatNomorAntrian::whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->count();
 
         $registrationData = User::selectRaw('COUNT(*) as count, DATE(created_at) as date')
@@ -75,30 +83,143 @@ class AdminAuthController extends Controller
             ->pluck('count')
             ->toArray();
 
+        $registrationLabels = User::selectRaw('DATE_FORMAT(created_at, "%d %b") as formatted_date')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('formatted_date')
+            ->orderBy('formatted_date')
+            ->pluck('formatted_date')
+            ->toArray();
+
         $accountRegistrationsCount = User::whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->count();
 
-        $labels = collect(range(1, count($queueData)))->map(function ($i) {
-            return Carbon::now()->startOfMonth()->addDays($i - 1)->format('M d');
-        })->toArray();
+        $queueCompletedData = RiwayatNomorAntrian::selectRaw('COUNT(*) as count, DATE(created_at) as date')
+            ->where('status', 'sudah_dilayani')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count')
+            ->toArray();
+
+        $queueCompletedLabels = RiwayatNomorAntrian::selectRaw('DATE_FORMAT(created_at, "%d %b") as formatted_date')
+            ->where('status', 'sudah_dilayani')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('formatted_date')
+            ->orderBy('formatted_date')
+            ->pluck('formatted_date')
+            ->toArray();
+
+        $queueNotCompletedData = RiwayatNomorAntrian::selectRaw('COUNT(*) as count, DATE(created_at) as date')
+            ->where('status', 'daftar_tunggu')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count')
+            ->toArray();
+
+        $queueNotCompletedLabels = RiwayatNomorAntrian::selectRaw('DATE_FORMAT(created_at, "%d %b") as formatted_date')
+            ->where('status', 'daftar_tunggu')
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth())
+            ->groupBy('formatted_date')
+            ->orderBy('formatted_date')
+            ->pluck('formatted_date')
+            ->toArray();
+
+        $rooms = ['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'];
+        $queueDataByRoom = [];
+        $queueLabelsByRoom = [];
+        $queueCompletedDataByRoom = [];
+        $queueCompletedLabelsByRoom = [];
+        $queueNotCompletedDataByRoom = [];
+        $queueNotCompletedLabelsByRoom = [];
+
+        foreach ($rooms as $room) {
+            $this->processRoomData($room, 'all', $queueDataByRoom, $queueLabelsByRoom);
+            $this->processRoomData($room, 'sudah_dilayani', $queueCompletedDataByRoom, $queueCompletedLabelsByRoom);
+            $this->processRoomData($room, 'daftar_tunggu', $queueNotCompletedDataByRoom, $queueNotCompletedLabelsByRoom);
+        }
 
         return view('secure.dashboard', [
             'visitorsData' => json_encode($visitorsData),
-            'visitorsLabels' => json_encode($labels),
+            'visitorsLabels' => json_encode($visitorsLabels),
             'queueData' => json_encode($queueData),
-            'queueLabels' => json_encode($labels),
+            'queueLabels' => json_encode($queueLabels),
             'registrationData' => json_encode($registrationData),
-            'registrationLabels' => json_encode($labels),
+            'registrationLabels' => json_encode($registrationLabels),
             'queueRegistrationsCount' => $queueRegistrationsCount,
             'accountRegistrationsCount' => $accountRegistrationsCount,
             'totalVisitorsThisMonth' => $totalVisitorsThisMonth,
+            'queueDataByRoom' => json_encode($queueDataByRoom),
+            'queueLabelsByRoom' => json_encode($queueLabelsByRoom),
+            'queueCompletedDataByRoom' => json_encode($queueCompletedDataByRoom),
+            'queueCompletedLabelsByRoom' => json_encode($queueCompletedLabelsByRoom),
+            'queueNotCompletedDataByRoom' => json_encode($queueNotCompletedDataByRoom),
+            'queueNotCompletedLabelsByRoom' => json_encode($queueNotCompletedLabelsByRoom),
+            'queueCompletedData' => json_encode($queueCompletedData),
+            'queueCompletedLabels' => json_encode($queueCompletedLabels),
+            'queueNotCompletedData' => json_encode($queueNotCompletedData),
+            'queueNotCompletedLabels' => json_encode($queueNotCompletedLabels),
         ]);
     }
 
+    private function processRoomData($room, $status, &$dataByRoom, &$labelsByRoom)
+    {
+        $query = RiwayatNomorAntrian::selectRaw('COUNT(*) as count, DATE_FORMAT(created_at, "%d %b") as formatted_date')
+            ->where('ruangan', $room)
+            ->whereDate('created_at', '>=', Carbon::now()->startOfMonth())
+            ->whereDate('created_at', '<=', Carbon::now()->endOfMonth());
+
+        if ($status !== 'all') {
+            $query = $query->where('status', $status);
+        }
+
+        $data = $query->groupBy('formatted_date')
+            ->orderBy('formatted_date')
+            ->get()
+            ->pluck('count', 'formatted_date')
+            ->toArray();
+
+        $dataByRoom[$room] = array_values($data);
+        $labelsByRoom[$room] = array_keys($data);
+    }
 
     public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
         return redirect()->route('admin.login');
+    }
+
+    public function pindahKeRiwayat()
+    {
+        $nomorAntrian = NomorAntrian::all();
+        foreach ($nomorAntrian as $antrian) {
+            $riwayat = new RiwayatNomorAntrian([
+                'nama' => $antrian->nama,
+                'nik' => $antrian->nik,
+                'ruangan' => $antrian->ruangan,
+                'nomor' => $antrian->nomor,
+                'created_at' => $antrian->created_at,
+                'status' => $antrian->status,
+                'waktu_dilayani' => null,
+                'waktu_total_sistem' => $antrian->waktu_total_sistem,
+                'riwayat_waktu' => null,
+                'waktu' => null,
+                'prioritas' => $antrian->prioritas,
+                'user_id' => $antrian->user_id,
+                'status_prioritas' => $antrian->status_prioritas,
+                'ruangan_asal' => $antrian->ruangan_asal,
+                'alasan_prioritas' => $antrian->alasan_prioritas,
+                'status_pembayaran' => $antrian->status_pembayaran,
+                'nomor_antrian_id' => $antrian->id
+            ]);
+            $riwayat->save();
+            $antrian->delete();
+        }
+        return redirect()->route('pengaturan-antrian.index');
     }
 
     public function index()
@@ -115,9 +236,17 @@ class AdminAuthController extends Controller
 
     public function showPrioritasPage()
     {
-        $allQueues = NomorAntrian::where('status', '!=', 'sudah_dilayani')->orderBy('nomor')->get();
+        $allQueues = NomorAntrian::with('user')
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('nomor')
+            ->get();
 
         return view('secure.prioritas', compact('allQueues'));
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function indexRiwayatAntrian(Request $request)
@@ -191,7 +320,6 @@ class AdminAuthController extends Controller
             ->first();
     }
 
-
     public function pindahkanNomorAntrian(Request $request)
     {
         $request->validate([
@@ -201,17 +329,43 @@ class AdminAuthController extends Controller
 
         $ruanganTujuan = $request->input('ruangan_tujuan');
 
-        $kodeRuanganTujuan = $this->ruanganToNumeric($ruanganTujuan);
-
         $nomorAntrian = NomorAntrian::find($request->nomor_antrian);
 
-        $nomor = intval(substr($nomorAntrian->nomor, 1));
+        $ruanganAsal = $nomorAntrian->ruangan_asal;
 
-        $waktuTotalSistem = $this->predictAntrian($nomor, $kodeRuanganTujuan, $nomorAntrian->status_prioritas, strtotime($nomorAntrian->created_at));
-        $nomorAntrian->waktu_total_sistem = $waktuTotalSistem;
+        $today = Carbon::now()->toDateString();
+
+        $queueInOriginalRoom = NomorAntrian::where('ruangan_asal', $ruanganAsal)
+            ->where('status', 'sedang_antri')
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at')
+            ->get();
+
+        $found = false;
+        $timeAdjustment = $this->getAverageServiceTime($ruanganAsal) * 60;
+
+        foreach ($queueInOriginalRoom as $queue) {
+            if ($queue->id == $nomorAntrian->id) {
+                $found = true;
+                continue;
+            }
+            if ($found) {
+                $queue->waktu_total_sistem -= $timeAdjustment;
+                $queue->save();
+            }
+        }
+
+        $averageServiceTime = $this->getAverageServiceTime($ruanganTujuan) * 60;
+        $currentQueueInNewRoom = NomorAntrian::where('ruangan', $ruanganTujuan)
+            ->where('status', 'sedang_antri')
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at')
+            ->get();
+
+        $nomorAntrian->ruangan = $ruanganTujuan;
+        $nomorAntrian->waktu_total_sistem = $currentQueueInNewRoom->isEmpty() ? $averageServiceTime : $currentQueueInNewRoom->last()->waktu_total_sistem + $averageServiceTime;
 
         session(['ruangan_asal' => $nomorAntrian->ruangan]);
-
         $nomorAntrian->ruangan = $ruanganTujuan;
 
         switch ($nomorAntrian->status) {
@@ -235,12 +389,25 @@ class AdminAuthController extends Controller
     private function ruanganToNumeric($ruangan)
     {
         $map = [
-            'poli_umum' => '1',
-            'poli_gigi' => '2',
-            'poli_kia' => '3',
-            'poli_anak' => '4',
-            'lab' => '5',
-            'apotik' => '6',
+            'poli_umum' => 'A',
+            'poli_gigi' => 'B',
+            'poli_kia' => 'C',
+            'poli_anak' => 'D',
+            'lab' => 'LAB',
+            'apotik' => 'APT',
+        ];
+        return isset($map[$ruangan]) ? $map[$ruangan] : '';
+    }
+
+    private function ruanganToNumericInt($ruangan)
+    {
+        $map = [
+            'poli_umum' => 1,
+            'poli_gigi' => 2,
+            'poli_kia' => 3,
+            'poli_anak' => 4,
+            'lab' => 5,
+            'apotik' => 6,
         ];
         return isset($map[$ruangan]) ? $map[$ruangan] : 0;
     }
@@ -262,11 +429,8 @@ class AdminAuthController extends Controller
 
     private function generateUniqueNumber($existingNumber)
     {
-
-        $lastNumber = intval(substr($existingNumber, strrpos($existingNumber, '_') + 1));
-
+        $lastNumber = intval(preg_replace('/[^0-9]/', '', substr($existingNumber, strrpos($existingNumber, '_') + 1)));
         $newNumber = $lastNumber + 1;
-
         return '' . $newNumber;
     }
 
@@ -277,14 +441,29 @@ class AdminAuthController extends Controller
         ]);
 
         $nomorAntrian = NomorAntrian::find($request->nomor_antrian);
-
-
         $nomorAntrian->status = 'sedang_antri';
+        $nomorAntrian->status_prioritas++;
         $nomorAntrian->save();
+
+        $today = Carbon::now()->toDateString();
+        $allActiveQueues = NomorAntrian::where('ruangan', $nomorAntrian->ruangan)
+            ->where('status', 'sedang_antri')
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime($nomorAntrian->ruangan) * 60;
+        $totalWaktuTunggu = 0;
+        foreach ($allActiveQueues as $queue) {
+            $queuePriorityFactor = 1 / max(1, $queue->status_prioritas);
+            $queueTimeAdjustment = $averageServiceTime * $queuePriorityFactor;
+            $totalWaktuTunggu += $queueTimeAdjustment;
+            $queue->waktu_total_sistem = $totalWaktuTunggu;
+            $queue->save();
+        }
 
         return redirect()->back()->with('success', 'Nomor antrian ' . $nomorAntrian->nomor . ' dipanggil kembali.');
     }
-
     public function pindahkanKeDaftarTunggu(Request $request)
     {
         $request->validate([
@@ -292,11 +471,23 @@ class AdminAuthController extends Controller
         ]);
 
         $nomorAntrian = NomorAntrian::find($request->nomor_antrian);
-
-        session(['ruangan_asal' => $nomorAntrian->ruangan]);
-
         $nomorAntrian->status = 'daftar_tunggu';
         $nomorAntrian->save();
+
+        $today = Carbon::now()->toDateString();
+        $allActiveQueues = NomorAntrian::where('ruangan', $nomorAntrian->ruangan)
+            ->where('status', 'sedang_antri')
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime($nomorAntrian->ruangan) * 60;
+        $totalWaktuTunggu = 0;
+        foreach ($allActiveQueues as $queue) {
+            $totalWaktuTunggu += $averageServiceTime;
+            $queue->waktu_total_sistem = $totalWaktuTunggu;
+            $queue->save();
+        }
 
         return redirect()->back()->with('success', 'Nomor antrian berhasil dipindahkan ke Daftar Tunggu.');
     }
@@ -309,13 +500,47 @@ class AdminAuthController extends Controller
         ]);
 
         $nomorAntrian = NomorAntrian::find($request->nomor_antrian);
+        $ruangan = $nomorAntrian->ruangan;
+        $today = Carbon::now()->toDateString();
+        $averageServiceTime = $this->getAverageServiceTime($ruangan) * 60;
 
         $nomorAntrian->prioritas = 'didahulukan';
         $nomorAntrian->status_prioritas = 20;
         $nomorAntrian->alasan_prioritas = $request->alasan_prioritas;
         $nomorAntrian->save();
 
+        $allQueuesToday = NomorAntrian::where('ruangan', $ruangan)
+            ->whereDate('created_at', $today)
+            ->orderBy('status_prioritas', 'desc')
+            ->orderBy('created_at')
+            ->get();
+
+        $newWaitTime = 0;
+        foreach ($allQueuesToday as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
+
         return redirect()->back()->with('success', 'Nomor antrian ' . $nomorAntrian->nomor . ' telah diberikan prioritas dengan alasan: ' . $request->alasan_prioritas);
+    }
+
+    private function getAverageServiceTime($ruangan)
+    {
+        $serviceTimes = [
+            'poli_umum' => 5,
+            'poli_gigi' => 15,
+            'poli_kia' => 10,
+            'poli_anak' => 10,
+            'lab' => 15,
+            'apotik' => 5,
+        ];
+        return $serviceTimes[$ruangan] ?? 5;
     }
 
     public function updateStatusPembayaran(Request $request)
@@ -338,15 +563,25 @@ class AdminAuthController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END, status_prioritas DESC, nomor")
             ->orderBy('nomor')
             ->get()
             ->groupBy('ruangan');
 
         $currentQueue = NomorAntrian::whereDate('created_at', $today)
             ->where('ruangan', 'poli_umum')
-            ->where('status', 'sedang_dilayani')
+            ->where(function ($query) {
+                $query->where('status', 'sedang_dilayani')
+                    ->orWhere('status', 'like', 'sedang_dilayani_%');
+            })
             ->orderBy('nomor')
             ->first();
+
+        $user = null;
+
+        if ($currentQueue) {
+            $user = User::find($currentQueue->user_id);
+        }
 
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
@@ -366,6 +601,7 @@ class AdminAuthController extends Controller
             'currentQueue' => $currentQueue,
             'currentQueueNumber' => $currentQueueNumber,
             'nextQueues' => $nextQueues,
+            'user' => $user
         ]);
     }
 
@@ -375,6 +611,7 @@ class AdminAuthController extends Controller
 
         $firstQueue = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'like', 'sedang_antri%')
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->first();
 
@@ -428,6 +665,26 @@ class AdminAuthController extends Controller
 
         $nomorAntrian->save();
 
+        $today = Carbon::now()->toDateString();
+        $allQueues = NomorAntrian::where('ruangan', 'poli_umum')
+            ->whereDate('created_at', $today)
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime('poli_umum') * 60;
+        $newWaitTime = 0;
+        foreach ($allQueues as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
+
         return redirect()->back()->with('success', 'Antrian telah selesai dilayani.');
     }
 
@@ -437,15 +694,26 @@ class AdminAuthController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END, status_prioritas DESC, nomor")
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->get()
             ->groupBy('ruangan');
 
         $currentQueue = NomorAntrian::whereDate('created_at', $today)
             ->where('ruangan', 'poli_gigi')
-            ->where('status', 'sedang_dilayani')
+            ->where(function ($query) {
+                $query->where('status', 'sedang_dilayani')
+                    ->orWhere('status', 'like', 'sedang_dilayani_%');
+            })
             ->orderBy('nomor')
             ->first();
+
+        $user = null;
+
+        if ($currentQueue) {
+            $user = User::find($currentQueue->user_id);
+        }
 
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
@@ -465,6 +733,7 @@ class AdminAuthController extends Controller
             'currentQueue' => $currentQueue,
             'currentQueueNumber' => $currentQueueNumber,
             'nextQueues' => $nextQueues,
+            'user' => $user,
         ]);
     }
 
@@ -495,6 +764,26 @@ class AdminAuthController extends Controller
 
         $nomorAntrian->save();
 
+        $today = Carbon::now()->toDateString();
+        $allQueues = NomorAntrian::where('ruangan', 'poli_gigi')
+            ->whereDate('created_at', $today)
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime('poli_gigi') * 60;
+        $newWaitTime = 0;
+        foreach ($allQueues as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
+
         return redirect()->back()->with('success', 'Antrian telah selesai dilayani.');
     }
 
@@ -504,6 +793,7 @@ class AdminAuthController extends Controller
 
         $firstQueue = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'like', 'sedang_antri%')
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->first();
 
@@ -536,15 +826,25 @@ class AdminAuthController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END, status_prioritas DESC, nomor")
             ->orderBy('nomor')
             ->get()
             ->groupBy('ruangan');
 
         $currentQueue = NomorAntrian::whereDate('created_at', $today)
             ->where('ruangan', 'poli_kia')
-            ->where('status', 'sedang_dilayani')
+            ->where(function ($query) {
+                $query->where('status', 'sedang_dilayani')
+                    ->orWhere('status', 'like', 'sedang_dilayani_%');
+            })
             ->orderBy('nomor')
             ->first();
+
+        $user = null;
+
+        if ($currentQueue) {
+            $user = User::find($currentQueue->user_id);
+        }
 
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
@@ -564,6 +864,7 @@ class AdminAuthController extends Controller
             'currentQueue' => $currentQueue,
             'currentQueueNumber' => $currentQueueNumber,
             'nextQueues' => $nextQueues,
+            'user' => $user,
         ]);
     }
 
@@ -573,6 +874,7 @@ class AdminAuthController extends Controller
 
         $firstQueue = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'like', 'sedang_antri%')
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->first();
 
@@ -626,6 +928,26 @@ class AdminAuthController extends Controller
 
         $nomorAntrian->save();
 
+        $today = Carbon::now()->toDateString();
+        $allQueues = NomorAntrian::where('ruangan', 'poli_kia')
+            ->whereDate('created_at', $today)
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime('poli_kia') * 60;
+        $newWaitTime = 0;
+        foreach ($allQueues as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
+
         return redirect()->back()->with('success', 'Antrian telah selesai dilayani.');
     }
 
@@ -634,15 +956,25 @@ class AdminAuthController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END, status_prioritas DESC, nomor")
             ->orderBy('nomor')
             ->get()
             ->groupBy('ruangan');
 
         $currentQueue = NomorAntrian::whereDate('created_at', $today)
             ->where('ruangan', 'poli_anak')
-            ->where('status', 'sedang_dilayani')
+            ->where(function ($query) {
+                $query->where('status', 'sedang_dilayani')
+                    ->orWhere('status', 'like', 'sedang_dilayani_%');
+            })
             ->orderBy('nomor')
             ->first();
+
+        $user = null;
+
+        if ($currentQueue) {
+            $user = User::find($currentQueue->user_id);
+        }
 
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
@@ -662,6 +994,7 @@ class AdminAuthController extends Controller
             'currentQueue' => $currentQueue,
             'currentQueueNumber' => $currentQueueNumber,
             'nextQueues' => $nextQueues,
+            'user' => $user,
         ]);
     }
 
@@ -671,6 +1004,7 @@ class AdminAuthController extends Controller
 
         $firstQueue = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'like', 'sedang_antri%')
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->first();
 
@@ -724,6 +1058,26 @@ class AdminAuthController extends Controller
 
         $nomorAntrian->save();
 
+        $today = Carbon::now()->toDateString();
+        $allQueues = NomorAntrian::where('ruangan', 'poli_anak')
+            ->whereDate('created_at', $today)
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime('poli_anak') * 60;
+        $newWaitTime = 0;
+        foreach ($allQueues as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
+
         return redirect()->back()->with('success', 'Antrian telah selesai dilayani.');
     }
 
@@ -732,15 +1086,25 @@ class AdminAuthController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END, status_prioritas DESC, nomor")
             ->orderBy('nomor')
             ->get()
             ->groupBy('ruangan');
 
         $currentQueue = NomorAntrian::whereDate('created_at', $today)
             ->where('ruangan', 'lab')
-            ->where('status', 'sedang_dilayani')
+            ->where(function ($query) {
+                $query->where('status', 'sedang_dilayani')
+                    ->orWhere('status', 'like', 'sedang_dilayani_%');
+            })
             ->orderBy('nomor')
             ->first();
+
+        $user = null;
+
+        if ($currentQueue) {
+            $user = User::find($currentQueue->user_id);
+        }
 
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
@@ -760,6 +1124,7 @@ class AdminAuthController extends Controller
             'currentQueue' => $currentQueue,
             'currentQueueNumber' => $currentQueueNumber,
             'nextQueues' => $nextQueues,
+            'user' => $user,
         ]);
     }
 
@@ -769,6 +1134,7 @@ class AdminAuthController extends Controller
 
         $firstQueue = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'like', 'sedang_antri%')
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->first();
 
@@ -822,6 +1188,26 @@ class AdminAuthController extends Controller
 
         $nomorAntrian->save();
 
+        $today = Carbon::now()->toDateString();
+        $allQueues = NomorAntrian::where('ruangan', 'lab')
+            ->whereDate('created_at', $today)
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime('lab') * 60;
+        $newWaitTime = 0;
+        foreach ($allQueues as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
+
         return redirect()->back()->with('success', 'Antrian telah selesai dilayani.');
     }
 
@@ -830,15 +1216,25 @@ class AdminAuthController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allQueues = NomorAntrian::whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END, status_prioritas DESC, nomor")
             ->orderBy('nomor')
             ->get()
             ->groupBy('ruangan');
 
         $currentQueue = NomorAntrian::whereDate('created_at', $today)
             ->where('ruangan', 'apotik')
-            ->where('status', 'sedang_dilayani')
+            ->where(function ($query) {
+                $query->where('status', 'sedang_dilayani')
+                    ->orWhere('status', 'like', 'sedang_dilayani_%');
+            })
             ->orderBy('nomor')
             ->first();
+
+        $user = null;
+
+        if ($currentQueue) {
+            $user = User::find($currentQueue->user_id);
+        }
 
         $currentQueueNumber = $currentQueue ? $currentQueue->nomor : 0;
 
@@ -858,6 +1254,7 @@ class AdminAuthController extends Controller
             'currentQueue' => $currentQueue,
             'currentQueueNumber' => $currentQueueNumber,
             'nextQueues' => $nextQueues,
+            'user' => $user,
         ]);
     }
 
@@ -867,6 +1264,7 @@ class AdminAuthController extends Controller
 
         $firstQueue = NomorAntrian::where('ruangan', $ruangan)
             ->where('status', 'like', 'sedang_antri%')
+            ->orderBy('status_prioritas', 'desc')
             ->orderBy('nomor')
             ->first();
 
@@ -919,6 +1317,26 @@ class AdminAuthController extends Controller
         }
 
         $nomorAntrian->save();
+
+        $today = Carbon::now()->toDateString();
+        $allQueues = NomorAntrian::where('ruangan', 'apotik')
+            ->whereDate('created_at', $today)
+            ->where('status', '!=', 'sudah_dilayani')
+            ->orderBy('created_at')
+            ->get();
+
+        $averageServiceTime = $this->getAverageServiceTime('apotik') * 60;
+        $newWaitTime = 0;
+        foreach ($allQueues as $queue) {
+            if ($newWaitTime == 0) {
+                $queue->waktu_total_sistem = $averageServiceTime;
+                $newWaitTime = $averageServiceTime;
+            } else {
+                $newWaitTime += $averageServiceTime;
+                $queue->waktu_total_sistem = $newWaitTime;
+            }
+            $queue->save();
+        }
 
         return redirect()->back()->with('success', 'Antrian telah selesai dilayani.');
     }

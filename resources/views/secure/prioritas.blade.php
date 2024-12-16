@@ -246,11 +246,19 @@
                                         <a href="javascript:void(0)"
                                             class="d-flex align-items-center gap-2 dropdown-item">
                                             <i class="ti ti-user fs-6"></i>
-                                            <p class="mb-0 fs-3">My Profile</p>
-                                            <a href="./authentication-login.html"
-                                                class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                                            <p class="mb-0 fs-3">Halo, {{ Auth::guard('admin')->user()->name }}</p>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-primary mx-3 mt-2 d-block"
+                                            onclick="confirmLogout(event);">
+                                            Logout
+                                        </a>
+                                        <form id="logout-form-dropdown" action="{{ route('admin.logout') }}"
+                                            method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
                                     </div>
                                 </div>
+
                             </li>
                         </ul>
                     </div>
@@ -290,6 +298,7 @@
                             <th>Status Prioritas</th>
                             <th>Alasan Prioritas</th>
                             <th>Status Pembayaran</th>
+                            <th>Status Berkas</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -341,10 +350,26 @@
                                     </span>
                                 </td>
                                 <td>
+                                    <p> KTP: </p>
+                                    <span class="badge {{ $queue->user->ktp ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $queue->user->ktp ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                        </span></p>
+                                    <p> BPJS: <span
+                                            class="badge {{ $queue->user->bpjs_card ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $queue->user->ktp ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                        </span></p>
+                                    <p> Kartu Puskesmas: <span
+                                            class="badge {{ $queue->user->puskesmas_card ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $queue->user->ktp ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                        </span></p>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.user-detail', ['id' => $queue->user_id]) }}"
+                                        class="btn btn-primary btn-sm mb-2">Lihat Detail Akun</a>
                                     @if ($queue->status_pembayaran == 'Belum Lunas')
                                         <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#konfirmasiPembayaranModal{{ $queue->id }}">
-                                            Ubah Status
+                                            Ubah Status Pembayaran
                                         </button>
                                         <div class="modal fade" id="konfirmasiPembayaranModal{{ $queue->id }}"
                                             tabindex="-1"

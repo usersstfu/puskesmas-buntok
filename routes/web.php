@@ -64,6 +64,7 @@ Route::get('/generate-nomor-antrian', [SimulasiController::class, 'generateNomor
 Route::get('/tampilkan-antrian', [SimulasiController::class, 'tampilkanDataAntrian'])->name('tampilkan-antrian');
 Route::get('/update-waktu-antrian', [SimulasiController::class, 'updateWaktuAntrian'])->name('update-waktu-antrian');
 Route::get('/ekspor-data-antrian', [SimulasiController::class, 'eksporDataAntrianKeCsv'])->name('ekspor-data-antrian');
+Route::get('/tampilkan-latihan', [SimulasiController::class, 'showTrainForm']);
 Route::post('/train-model', [DaftarAntrianController::class, 'trainModel']);
 Route::post('/predict', [DaftarAntrianController::class, 'predict']);
 
@@ -83,6 +84,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/secure/detail-pengguna/{id}', [AdminAuthController:: class, 'showUserDetail'])->name('admin.user-detail');
     Route::get('/secure/riwayat-antrian', [AdminAuthController::class, 'indexRiwayatAntrian'])->name('admin.riwayat-antrian');
     Route::get('/secure/kontak-index', [AdminAuthController::class, 'showKontakPage'])->name('admin.contacts.index');
+    Route::post('/secure/pindah-ke-riwayat', [AdminAuthController::class, 'pindahKeRiwayat'])->name('pindah.ke.riwayat');
     // Poli Umum
     Route::get('/secure/poli-umum', [AdminAuthController::class, 'showPoliUmumPage'])->name('admin.poli-umum');
     Route::post('/secure/poli-umum/start-queue', [AdminAuthController::class, 'startQueuePoliUmum'])->name('admin.startQueuePoliUmum');

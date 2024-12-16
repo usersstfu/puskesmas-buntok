@@ -18,4 +18,9 @@ class NomorAntrian extends Model
         'status_prioritas' => 'array',
         'riwayat_waktu' => 'array',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User', 'user_id');  
+    }
 }

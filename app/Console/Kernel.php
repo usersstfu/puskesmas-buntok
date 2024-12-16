@@ -16,9 +16,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            (new DaftarAntrianController)->pindahKeRiwayat();
-        })->dailyAt('00:01');
     }
 
     /**

@@ -193,11 +193,19 @@
                                         <a href="javascript:void(0)"
                                             class="d-flex align-items-center gap-2 dropdown-item">
                                             <i class="ti ti-user fs-6"></i>
-                                            <p class="mb-0 fs-3">My Profile</p>
-                                            <a href="./authentication-login.html"
-                                                class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                                            <p class="mb-0 fs-3">Halo, {{ Auth::guard('admin')->user()->name }}</p>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-primary mx-3 mt-2 d-block"
+                                            onclick="confirmLogout(event);">
+                                            Logout
+                                        </a>
+                                        <form id="logout-form-dropdown" action="{{ route('admin.logout') }}"
+                                            method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
                                     </div>
                                 </div>
+
                             </li>
                         </ul>
                     </div>
@@ -252,6 +260,55 @@
                                     @endif
                                 </span>
                                 </p>
+                                <button class="btn btn-info mb-2" onclick="toggleBerkas()">Lihat Status
+                                    Berkas</button>
+                                <div id="statusBerkas" style="display: none;">
+                                    @if ($user)
+                                        <div class="mb-4">
+                                            <label for="ktp" class="form-label">KTP:
+                                                <span class="badge {{ $user->ktp ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $user->ktp ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                                </span>
+                                            </label>
+                                            @if ($user->ktp)
+                                                <div class="mb-2">
+                                                    <a href="{{ asset('storage/' . $user->ktp) }}"
+                                                        target="_blank">Lihat KTP</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="bpjs" class="form-label">BPJS:
+                                                <span
+                                                    class="badge {{ $user->bpjs_card ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $user->bpjs_card ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                                </span>
+                                            </label>
+                                            @if ($user->bpjs_card)
+                                                <div class="mb-2">
+                                                    <a href="{{ asset('storage/' . $user->bpjs_card) }}"
+                                                        target="_blank">Lihat BPJS</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="puskesmas" class="form-label">Kartu Puskesmas:
+                                                <span
+                                                    class="badge {{ $user->puskesmas_card ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $user->puskesmas_card ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                                </span>
+                                            </label>
+                                            @if ($user->puskesmas_card)
+                                                <div class="mb-2">
+                                                    <a href="{{ asset('storage/' . $user->puskesmas_card) }}"
+                                                        target="_blank">Lihat Kartu Puskesmas</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <p>User tidak ditemukan.</p>
+                                    @endif
+                                </div>
                                 @if (!$currentQueueNumber)
                                     <form method="POST"
                                         action="{{ route('admin.startQueuePoliKia', ['ruangan' => 'poli_kia']) }}">
@@ -395,6 +452,16 @@
             let result = confirm("Apakah Anda yakin ingin logout?");
             if (result) {
                 document.getElementById('logout-form').submit();
+            }
+        }
+    </script>
+    <script>
+        function toggleBerkas() {
+            var x = document.getElementById("statusBerkas");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
             }
         }
     </script>

@@ -252,6 +252,55 @@
                                     @endif
                                 </span>
                                 </p>
+                                <button class="btn btn-info mb-2" onclick="toggleBerkas()">Lihat Status
+                                    Berkas</button>
+                                <div id="statusBerkas" style="display: none;">
+                                    @if ($user)
+                                        <div class="mb-4">
+                                            <label for="ktp" class="form-label">KTP:
+                                                <span class="badge {{ $user->ktp ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $user->ktp ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                                </span>
+                                            </label>
+                                            @if ($user->ktp)
+                                                <div class="mb-2">
+                                                    <a href="{{ asset('storage/' . $user->ktp) }}"
+                                                        target="_blank">Lihat KTP</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="bpjs" class="form-label">BPJS:
+                                                <span
+                                                    class="badge {{ $user->bpjs_card ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $user->bpjs_card ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                                </span>
+                                            </label>
+                                            @if ($user->bpjs_card)
+                                                <div class="mb-2">
+                                                    <a href="{{ asset('storage/' . $user->bpjs_card) }}"
+                                                        target="_blank">Lihat BPJS</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="puskesmas" class="form-label">Kartu Puskesmas:
+                                                <span
+                                                    class="badge {{ $user->puskesmas_card ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $user->puskesmas_card ? 'Berkas Ada' : 'Berkas Tidak Ada' }}
+                                                </span>
+                                            </label>
+                                            @if ($user->puskesmas_card)
+                                                <div class="mb-2">
+                                                    <a href="{{ asset('storage/' . $user->puskesmas_card) }}"
+                                                        target="_blank">Lihat Kartu Puskesmas</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <p>User tidak ditemukan.</p>
+                                    @endif
+                                </div>
                                 @if (!$currentQueueNumber)
                                     <form method="POST"
                                         action="{{ route('admin.startQueueLab', ['ruangan' => 'lab']) }}">
@@ -395,6 +444,16 @@
             let result = confirm("Apakah Anda yakin ingin logout?");
             if (result) {
                 document.getElementById('logout-form').submit();
+            }
+        }
+    </script>
+    <script>
+        function toggleBerkas() {
+            var x = document.getElementById("statusBerkas");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
             }
         }
     </script>

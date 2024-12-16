@@ -15,11 +15,16 @@ class SimulasiController extends Controller
         return $names[array_rand($names)];
     }
 
+    public function showTrainForm()
+    {
+        return view('simulasi.train-model');
+    }
+
     public function eksporDataAntrianKeCsv()
     {
         $antrian = NomorAntrian::all();
 
-        $filename = "data_antrian_baru.csv";
+        $filename = "data_antrian_newbie.csv";
         $handle = fopen($filename, 'w+');
         fputcsv($handle, [
             'nomor', 'ruangan', 'status_prioritas', 'nama', 'nik',
@@ -237,7 +242,7 @@ class SimulasiController extends Controller
                 $dataAntrian->ruangan = 'lab';
             } else {
                 $dataAntrian->ruangan = 'apotik';
-                session()->forget("returned_from_lab_{$dataAntrian->id}"); 
+                session()->forget("returned_from_lab_{$dataAntrian->id}");
             }
         } elseif ($dataAntrian->ruangan === 'lab') {
             if ($ruanganAsal !== 'lab') {
@@ -319,8 +324,8 @@ class SimulasiController extends Controller
         if (!$currentlyServing) {
             $nextQueue = NomorAntrian::where('ruangan', $ruangan)
                 ->where('status', 'sedang_antri')
-                ->orderBy('status_prioritas', 'desc') 
-                ->orderBy('updated_at') 
+                ->orderBy('status_prioritas', 'desc')
+                ->orderBy('updated_at')
                 ->first();
 
             if ($nextQueue) {

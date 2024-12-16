@@ -25,6 +25,17 @@
             background-color: #f8f9fa;
             border-radius: 5px;
         }
+
+        .active-button {
+            background-color: #007bff;
+            /* Blue shade for active state */
+            color: white;
+        }
+
+        .btn-secondary.active-button {
+            background-color: #0056b3;
+            /* Darker blue for contrast */
+        }
     </style>
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
         data-sidebar-position="fixed" data-header-position="fixed">
@@ -234,7 +245,50 @@
                         </div>
                         <div class="chart-container mb-4">
                             <h3 class="text-center">Grafik Pendaftar Nomor Antrian</h3>
-                            <div id="queueChart" class="chart"></div>
+                            <div class="btn-group mb-2 mx-4" role="group" aria-label="Queue Charts">
+                                <button type="button" class="btn btn-primary"
+                                    onclick="showChart('')">Keseluruhan</button>
+                                @foreach (['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'] as $room)
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="showChart('{{ $room }}')">{{ str_replace('_', ' ', ucfirst($room)) }}</button>
+                                @endforeach
+                            </div>
+                            <div id="queueChart" class="chart queue-chart"></div>
+                            @foreach (['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'] as $room)
+                                <div id="queueChart{{ $room }}" class="chart queue-chart d-none"></div>
+                            @endforeach
+                        </div>
+                        <div class="chart-container mb-4">
+                            <h3 class="text-center">Grafik Nomor Antrian yang Selesai</h3>
+                            <div class="btn-group mb-2 mx-4" role="group" aria-label="Completed Charts">
+                                <button type="button" class="btn btn-primary"
+                                    onclick="showCompletedChart('')">Keseluruhan</button>
+                                @foreach (['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'] as $room)
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="showCompletedChart('{{ $room }}')">{{ str_replace('_', ' ', ucfirst($room)) }}</button>
+                                @endforeach
+                            </div>
+                            <div id="queueCompletedChart" class="chart completed-chart"></div>
+                            @foreach (['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'] as $room)
+                                <div id="queueCompletedChart{{ $room }}"
+                                    class="chart completed-chart d-none"></div>
+                            @endforeach
+                        </div>
+                        <div class="chart-container mb-4">
+                            <h3 class="text-center">Grafik Nomor Antrian yang Tidak Selesai</h3>
+                            <div class="btn-group mb-2 mx-4" role="group" aria-label="Not Completed Charts">
+                                <button type="button" class="btn btn-primary"
+                                    onclick="showNotCompletedChart('')">Keseluruhan</button>
+                                @foreach (['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'] as $room)
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="showNotCompletedChart('{{ $room }}')">{{ str_replace('_', ' ', ucfirst($room)) }}</button>
+                                @endforeach
+                            </div>
+                            <div id="queueNotCompletedChart" class="chart notcompleted-chart"></div>
+                            @foreach (['poli_umum', 'poli_gigi', 'poli_kia', 'poli_anak', 'lab', 'apotik'] as $room)
+                                <div id="queueNotCompletedChart{{ $room }}"
+                                    class="chart notcompleted-chart d-none"></div>
+                            @endforeach
                         </div>
                         <div class="chart-container mb-4">
                             <h3 class="text-center">Grafik Pendaftar Akun</h3>
@@ -243,11 +297,11 @@
                     </div>
                     <div class="col-lg-4">
                         <div class="summary-section">
-                            <h3>Ringkasan Statistik</h3>
+                            <h4>Ringkasan Statistik Bulan Ini</h4>
                             <ul>
-                                <li>Pengunjung Bulan Ini: {{ $totalVisitorsThisMonth }}</li>
-                                <li>Pendaftar Nomor Antrian Bulan Ini: {{ $queueRegistrationsCount }}</li>
-                                <li>Pendaftar Akun Bulan Ini: {{ $accountRegistrationsCount }}</li>
+                                <li>Pengunjung : {{ $totalVisitorsThisMonth }} Pengunjung</li>
+                                <li>Nomor Antrian : {{ $queueRegistrationsCount }} Pendaftar</li>
+                                <li>Akun : {{ $accountRegistrationsCount }} Akun</li>
                             </ul>
                         </div>
                     </div>
@@ -266,8 +320,16 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var visitorsData = {!! $visitorsData !!};
-            var visitorsLabels = {!! $visitorsLabels !!};
+            var visitorsData = JSON.parse('{!! $visitorsData !!}');
+            var visitorsLabels = JSON.parse('{!! $visitorsLabels !!}');
+            var queueData = JSON.parse('{!! $queueData !!}');
+            var queueLabels = JSON.parse('{!! $queueLabels !!}');
+            var registrationData = JSON.parse('{!! $registrationData !!}');
+            var registrationLabels = JSON.parse('{!! $registrationLabels !!}');
+            var queueCompletedData = JSON.parse('{!! $queueCompletedData !!}');
+            var queueCompletedLabels = JSON.parse('{!! $queueCompletedLabels !!}');
+            var queueNotCompletedData = JSON.parse('{!! $queueNotCompletedData !!}');
+            var queueNotCompletedLabels = JSON.parse('{!! $queueNotCompletedLabels !!}');
 
             var visitorsOptions = {
                 chart: {
@@ -275,16 +337,13 @@
                     height: '350px'
                 },
                 series: [{
-                    name: 'Visitors',
+                    name: 'Pengunjung',
                     data: visitorsData
                 }],
                 xaxis: {
                     categories: visitorsLabels
                 }
             };
-
-            var queueData = {!! $queueData !!};
-            var queueLabels = {!! $queueLabels !!};
 
             var queueOptions = {
                 chart: {
@@ -300,9 +359,6 @@
                 }
             };
 
-            var registrationData = {!! $registrationData !!};
-            var registrationLabels = {!! $registrationLabels !!};
-
             var registrationOptions = {
                 chart: {
                     type: 'line',
@@ -317,14 +373,51 @@
                 }
             };
 
+            var queueCompletedOptions = {
+                chart: {
+                    type: 'line',
+                    height: '350px'
+                },
+                series: [{
+                    name: 'Antrian Selesai',
+                    data: queueCompletedData
+                }],
+                xaxis: {
+                    categories: queueCompletedLabels
+                }
+            };
+
+            var queueNotCompletedOptions = {
+                chart: {
+                    type: 'line',
+                    height: '350px'
+                },
+                series: [{
+                    name: 'Antrian Tidak Selesai',
+                    data: queueNotCompletedData
+                }],
+                xaxis: {
+                    categories: queueNotCompletedLabels
+                }
+            }
+
             var visitorsChart = new ApexCharts(document.querySelector("#visitorsChart"), visitorsOptions);
+            visitorsChart.render();
+
             var queueChart = new ApexCharts(document.querySelector("#queueChart"), queueOptions);
+            queueChart.render();
+
             var registrationChart = new ApexCharts(document.querySelector("#registrationChart"),
                 registrationOptions);
-
-            visitorsChart.render();
-            queueChart.render();
             registrationChart.render();
+
+            var queueCompletedChart = new ApexCharts(document.querySelector("#queueCompletedChart"),
+                queueCompletedOptions);
+            queueCompletedChart.render();
+
+            var queueNotCompletedChart = new ApexCharts(document.querySelector("#queueNotCompletedChart"),
+                queueNotCompletedOptions);
+            queueNotCompletedChart.render();
         });
     </script>
     <script>
@@ -333,6 +426,178 @@
             let result = confirm("Apakah Anda yakin ingin logout?");
             if (result) {
                 document.getElementById('logout-form').submit();
+            }
+        }
+    </script>
+    <script>
+        var queueDataByRoom = {!! $queueDataByRoom !!};
+        var queueLabelsByRoom = {!! $queueLabelsByRoom !!};
+
+        function showChart(room) {
+            const queueCharts = document.querySelectorAll('.queue-chart');
+            queueCharts.forEach(chart => chart.classList.add('d-none'));
+
+            const buttons = document.querySelectorAll('.btn-group button');
+            buttons.forEach(button => button.classList.remove('active-button'));
+
+            const chartContainerId = 'queueChart' + (room ? room : '');
+            const selectedChart = document.getElementById(chartContainerId);
+            if (selectedChart) {
+                selectedChart.classList.remove('d-none');
+                renderChart(room);
+            }
+
+            const activeButton = room ? document.querySelector(`button[onclick="showChart('${room}')"]`) : document
+                .querySelector('button[onclick="showChart(\'\')"]');
+            if (activeButton) {
+                activeButton.classList.add('active-button');
+            }
+        }
+
+        function renderChart(room) {
+            var data = room ? queueDataByRoom[room] : queueData;
+            var labels = room ? queueLabelsByRoom[room] : queueLabels;
+
+            var options = {
+                chart: {
+                    type: 'line',
+                    height: '350px'
+                },
+                series: [{
+                    name: 'Jumlah Nomor Antrian',
+                    data: data
+                }],
+                xaxis: {
+                    categories: labels
+                }
+            };
+
+            var chartElementId = 'queueChart' + (room ? room : '');
+            var chartElement = document.querySelector('#' + chartElementId);
+            var existingChart = ApexCharts.getChartByID(chartElementId);
+            if (existingChart) {
+                existingChart.updateOptions(options, true, true, true);
+            } else {
+                if (chartElement.firstChild) {
+                    chartElement.firstChild.remove(); 
+                }
+                var newChart = new ApexCharts(chartElement, options);
+                newChart.render();
+            }
+        }
+    </script>
+    <script>
+        var queueCompletedDataByRoom = {!! $queueCompletedDataByRoom !!};
+        var queueCompletedLabelsByRoom = {!! $queueCompletedLabelsByRoom !!};
+
+        function showCompletedChart(room) {
+            const queueCharts = document.querySelectorAll('.completed-chart');
+            queueCharts.forEach(chart => chart.classList.add('d-none'));
+
+            const buttons = document.querySelectorAll('.btn-group button');
+            buttons.forEach(button => button.classList.remove('active-button'));
+
+            const chartContainerId = 'queueCompletedChart' + (room ? room : '');
+            const selectedChart = document.getElementById(chartContainerId);
+            if (selectedChart) {
+                selectedChart.classList.remove('d-none');
+                renderCompletedChart(room);
+            }
+
+            const activeButton = room ? document.querySelector(`button[onclick="showCompletedChart('${room}')"]`) : document
+                .querySelector('button[onclick="showCompletedChart(\'\')"]');
+            if (activeButton) {
+                activeButton.classList.add('active-button');
+            }
+        }
+
+        function renderCompletedChart(room) {
+            var data = room ? queueCompletedDataByRoom[room] : queueCompletedData;
+            var labels = room ? queueCompletedLabelsByRoom[room] : queueCompletedLabels;
+
+            var options = {
+                chart: {
+                    type: 'line',
+                    height: '350px'
+                },
+                series: [{
+                    name: 'Jumlah Nomor Antrian',
+                    data: data
+                }],
+                xaxis: {
+                    categories: labels
+                }
+            };
+
+            var chartElementId = 'queueCompletedChart' + (room ? room : '');
+            var chartElement = document.querySelector('#' + chartElementId);
+            var existingChart = ApexCharts.getChartByID(chartElementId);
+            if (existingChart) {
+                existingChart.updateOptions(options, true, true, true);
+            } else {
+                if (chartElement.firstChild) {
+                    chartElement.firstChild.remove(); 
+                }
+                var newChart = new ApexCharts(chartElement, options);
+                newChart.render();
+            }
+        }
+    </script>
+    <script>
+        var queueNotCompletedDataByRoom = {!! $queueNotCompletedDataByRoom !!};
+        var queueNotCompletedLabelsByRoom = {!! $queueNotCompletedLabelsByRoom !!};
+
+        function showNotCompletedChart(room) {
+            const queueCharts = document.querySelectorAll('.notcompleted-chart');
+            queueCharts.forEach(chart => chart.classList.add('d-none'));
+
+            const buttons = document.querySelectorAll('.btn-group button');
+            buttons.forEach(button => button.classList.remove('active-button'));
+
+            const chartContainerId = 'queueNotCompletedChart' + (room ? room : '');
+            const selectedChart = document.getElementById(chartContainerId);
+            if (selectedChart) {
+                selectedChart.classList.remove('d-none');
+                renderNotCompletedChart(room);
+            }
+
+            const activeButton = room ? document.querySelector(`button[onclick="showNotCompletedChart('${room}')"]`) :
+                document
+                .querySelector('button[onclick="showNotCompletedChart(\'\')"]');
+            if (activeButton) {
+                activeButton.classList.add('active-button');
+            }
+        }
+
+        function renderNotCompletedChart(room) {
+            var data = room ? queueNotCompletedDataByRoom[room] : queueNotCompletedData;
+            var labels = room ? queueNotCompletedLabelsByRoom[room] : queueNotCompletedLabels;
+
+            var options = {
+                chart: {
+                    type: 'line',
+                    height: '350px'
+                },
+                series: [{
+                    name: 'Jumlah Nomor Antrian',
+                    data: data
+                }],
+                xaxis: {
+                    categories: labels
+                }
+            };
+
+            var chartElementId = 'queueNotCompletedChart' + (room ? room : '');
+            var chartElement = document.querySelector('#' + chartElementId);
+            var existingChart = ApexCharts.getChartByID(chartElementId);
+            if (existingChart) {
+                existingChart.updateOptions(options, true, true, true);
+            } else {
+                if (chartElement.firstChild) {
+                    chartElement.firstChild.remove(); 
+                }
+                var newChart = new ApexCharts(chartElement, options);
+                newChart.render();
             }
         }
     </script>

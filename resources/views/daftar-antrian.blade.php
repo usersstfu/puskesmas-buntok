@@ -57,12 +57,12 @@
 
     <div class="container-fluid position-relative p-0">
         <nav class="navbar navbar-expand-lg navbar-light bg-white px-4 px-lg-5 py-3 py-lg-0">
-            <a href="/" class="navbar-brand p-0">
-                <h1 class="text-primary m-0"><i class="fas fa-star-of-life me-3"></i>Puskesmas Buntok</h1>
-            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
             </button>
+            <a href="/" class="navbar-brand p-0">
+                <h1 class="text-primary m-0"><i class="fas fa-star-of-life me-3"></i>Puskesmas Buntok</h1>
+            </a>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav ms-auto py-0">
                     <li class="nav-item">
@@ -86,41 +86,40 @@
                 <a href="/antrian"
                     class="btn btn-primary rounded-pill text-white py-2 px-4 flex-wrap flex-sm-shrink-0">Sistem
                     Antrian</a>
+                @if (Auth::check())
+                    <div class="nav-item jojo profile-dropdown">
+                        <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                            <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
+                                height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                            <div class="message-body">
+                                <p class="dropdown-item">Halo, {{ Auth::user()->name }}</p>
+                                <a href="/profile" class="dropdown-item">My Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="nav-item jojo profile-dropdown">
+                        <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                            <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
+                                height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                            <div class="message-body">
+                                <a href="/masuk" class="dropdown-item">Login</a>
+                                <a href="/daftar" class="dropdown-item">Daftar Akun</a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
-            @if (Auth::check())
-                <div class="nav-item">
-                    <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                        <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
-                            height="35" class="rounded-circle">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                        <div class="message-body">
-                            <p class="dropdown-item">Halo, {{ Auth::user()->name }}</p>
-                            <a href="/profile" class="dropdown-item">My Profile</a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="dropdown-item">Logout</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <div class="nav-item">
-                    <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                        <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
-                            height="35" class="rounded-circle">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                        <div class="message-body">
-                            <a href="/masuk" class="dropdown-item">Login</a>
-                            <a href="/daftar" class="dropdown-item">Daftar Akun</a>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </nav>
     </div>
-
 
     <div class="container-fluid bg-breadcrumb">
         <div class="container text-center py-5" style="max-width: 900px;">
@@ -177,7 +176,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mt-2">
                     <div class="card">
                         <div class="card-header">Status Dokumen Identitas</div>
                         <div class="card-body">
@@ -371,12 +370,12 @@
                 if (!userBpjs) {
                     additionalMessages.push(
                         'Sebelum Anda Masuk ke Ruangan Pertama Anda, Harap Anda Bayar Terlebih Dahulu Ke Loket Puskesmas, Terima Kasih'
-                        );
+                    );
                 }
                 if (!userPuskesmas) {
                     additionalMessages.push(
                         'Sebelum Anda Masuk ke Ruangan Pertama Anda, Harap Anda Membuat Kartu Berobat Puskesmas Buntok Terlebih Dahulu Ke Loket Puskesmas, Terima Kasih'
-                        );
+                    );
                 }
 
                 let additionalMessageHtml = '';

@@ -34,6 +34,7 @@
             width: 100%;
             max-width: 600px;
             margin: 20px;
+            margin-left: 0rem;
         }
 
         .card a {
@@ -45,6 +46,7 @@
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
+            font-size: 14px;
         }
 
         .section {
@@ -96,12 +98,12 @@
 
     <div class="container-fluid position-relative p-0">
         <nav class="navbar navbar-expand-lg navbar-light bg-white px-4 px-lg-5 py-3 py-lg-0">
-            <a href="/" class="navbar-brand p-0">
-                <h1 class="text-primary m-0"><i class="fas fa-star-of-life me-3"></i>Puskesmas Buntok</h1>
-            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
             </button>
+            <a href="/" class="navbar-brand p-0">
+                <h1 class="text-primary m-0"><i class="fas fa-star-of-life me-3"></i>Puskesmas Buntok</h1>
+            </a>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav ms-auto py-0">
                     <li class="nav-item">
@@ -125,38 +127,38 @@
                 <a href="/antrian"
                     class="btn btn-primary rounded-pill text-white py-2 px-4 flex-wrap flex-sm-shrink-0">Sistem
                     Antrian</a>
+                @if (Auth::check())
+                    <div class="nav-item jojo profile-dropdown">
+                        <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                            <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
+                                height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                            <div class="message-body">
+                                <p class="dropdown-item">Halo, {{ Auth::user()->name }}</p>
+                                <a href="/profile" class="dropdown-item">My Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="nav-item jojo profile-dropdown">
+                        <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                            <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
+                                height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                            <div class="message-body">
+                                <a href="/masuk" class="dropdown-item">Login</a>
+                                <a href="/daftar" class="dropdown-item">Daftar Akun</a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
-            @if (Auth::check())
-                <div class="nav-item">
-                    <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                        <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
-                            height="35" class="rounded-circle">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                        <div class="message-body">
-                            <p class="dropdown-item">Halo, {{ Auth::user()->name }}</p>
-                            <a href="/profile" class="dropdown-item">My Profile</a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="dropdown-item">Logout</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <div class="nav-item">
-                    <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                        <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
-                            height="35" class="rounded-circle">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                        <div class="message-body">
-                            <a href="/masuk" class="dropdown-item">Login</a>
-                            <a href="/daftar" class="dropdown-item">Daftar Akun</a>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </nav>
     </div>
 
@@ -174,7 +176,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card mb-4">
+                <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">Sistem Antrian Cerdas Puskesmas Buntok</h2>
                         <div class="card-text">

@@ -61,16 +61,17 @@ class DaftarAntrianController extends Controller
         $nomorAntrian->ruangan = $ruangan;
         $nomorAntrian->ruangan_asal = $ruangan;
         $nomorAntrian->user_id = $user->id;
+        $nomorAntrian->status_prioritas = 1;
 
         try {
             $birthdate = Carbon::createFromFormat('Y-m-d', $user->birthdate);
             $usia = $birthdate->diffInYears(Carbon::now());
             if ($usia >= 60) {
                 $nomorAntrian->status_prioritas = 10;
-                $nomorAntrian->prioritas = 'Usia';
+                $prioritas = 'Usia';
             } else {
                 $nomorAntrian->status_prioritas = 1;
-                $nomorAntrian->prioritas = 'Umum';
+                $prioritas = 'Umum';
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Invalid birthdate format. Please enter the birthdate in the format YYYY-MM-DD.');
@@ -82,45 +83,66 @@ class DaftarAntrianController extends Controller
             $nomorAntrian->status_pembayaran = 'Belum Lunas';
         }
 
-        $kodeRuangan = '';
-        $thisRuangan = '';
-        switch ($ruangan) {
-            case 'poli_umum':
-                $kodeRuangan = 'A';
-                $thisRuangan = '1';
-                break;
-            case 'poli_gigi':
-                $kodeRuangan = 'B';
-                $thisRuangan = '2';
-                break;
-            case 'poli_kia':
-                $kodeRuangan = 'C';
-                $thisRuangan = '3';
-                break;
-            case 'poli_anak':
-                $kodeRuangan = 'D';
-                $thisRuangan = '4';
-                break;
-            case 'lab':
-                $kodeRuangan = 'LAB';
-                $thisRuangan = '5';
-                break;
-            case 'apotik':
-                $kodeRuangan = 'APT';
-                $thisRuangan = '6';
-                break;
-            default:
-                break;
-        }
+        $kodeRuangan = $this->getKodeRuangan($ruangan);
+        $averageServiceTime = $this->getAverageServiceTime($ruangan) * 60;
 
-        $lastQueueToday = NomorAntrian::whereDate('created_at', $today)->latest()->first();
-        $lastQueueNumber = $lastQueueToday ? intval(substr($lastQueueToday->nomor, 1)) : 0;
-        $nomorAntrian->nomor = $kodeRuangan . ($lastQueueNumber + 1);
-        $waktuTotalSistem = $this->predictAntrian($lastQueueNumber + 1, $thisRuangan, $nomorAntrian->status_prioritas, strtotime($nomorAntrian->created_at));
-        $nomorAntrian->waktu_total_sistem = $waktuTotalSistem;
+        $lastQueueToday = NomorAntrian::where('ruangan_asal', $ruangan)
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $lastQueueNumber = $lastQueueToday ? intval(substr($lastQueueToday->nomor, strlen($kodeRuangan))) : 0;
+        $newQueueNumber = $lastQueueNumber + 1;
+
+        $nomorAntrian->nomor = $kodeRuangan . $newQueueNumber;
+        $nomorAntrian->prioritas = $prioritas;
+
+        $allQueuesToday = NomorAntrian::where('ruangan', $ruangan)
+            ->where('status', 'sedang_antri')
+            ->whereDate('created_at', $today)
+            ->orderBy('nomor')
+            ->get();
+            
+        $adjustedWaitTime = $averageServiceTime;
+        foreach ($allQueuesToday as $queue) {
+            if ($nomorAntrian->status_prioritas > $queue->status_prioritas) {
+                $queue->waktu_total_sistem += $averageServiceTime;
+                $queue->save();
+            } else {
+                $adjustedWaitTime += $averageServiceTime;
+            }
+        }
+        
+        $nomorAntrian->waktu_total_sistem = $adjustedWaitTime;
         $nomorAntrian->save();
 
         return redirect()->route('lihat-antrian')->with('success', 'Nomor antrian Anda telah didaftarkan.');
+    }
+
+    private function getAverageServiceTime($ruangan)
+    {
+        $serviceTimes = [
+            'poli_umum' => 5,
+            'poli_gigi' => 15,
+            'poli_kia' => 10,
+            'poli_anak' => 10,
+            'lab' => 15,
+            'apotik' => 5,
+        ];
+        return $serviceTimes[$ruangan] ?? 5;
+    }
+
+    private function getKodeRuangan($ruangan)
+    {
+        $map = [
+            'poli_umum' => 'A',
+            'poli_gigi' => 'B',
+            'poli_kia' => 'C',
+            'poli_anak' => 'D',
+            'lab' => 'LAB',
+            'apotik' => 'APT',
+        ];
+        return isset($map[$ruangan]) ? $map[$ruangan] : '';
     }
 
     public function pindahKeRiwayat()
@@ -142,6 +164,9 @@ class DaftarAntrianController extends Controller
                 'user_id' => $antrian->user_id,
                 'status_prioritas' => $antrian->status_prioritas,
                 'ruangan_asal' => $antrian->ruangan_asal,
+                'alasan_prioritas' => $antrian->alasan_prioritas,
+                'status_pembayaran' => $antrian->status_pembayaran,
+                'nomor_antrian_id' => $antrian->id
             ]);
             $riwayat->save();
             $antrian->delete();
@@ -165,7 +190,7 @@ class DaftarAntrianController extends Controller
 
     public function trainModel()
     {
-        $csvFile = public_path('data_antrian.csv');
+        $csvFile = public_path('data_antrian_newbie.csv');
         $handle = fopen($csvFile, 'r');
 
         if ($handle === false) {

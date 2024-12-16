@@ -1,21 +1,20 @@
-
 /*** Spinner Start ***/
 /*** Spinner ***/
 #spinner {
     opacity: 0;
     visibility: hidden;
-    transition: opacity .5s ease-out, visibility 0s linear .5s;
+    transition: opacity 0.5s ease-out, visibility 0s linear 0.5s;
     z-index: 99999;
 }
 
 #spinner.show {
-    transition: opacity .5s ease-out, visibility 0s linear 0s;
+    transition: opacity 0.5s ease-out, visibility 0s linear 0s;
     visibility: visible;
     opacity: 1;
 }
 /*** Spinner End ***/
 
-.rata{
+.rata {
     text-align: justify;
 }
 
@@ -35,7 +34,7 @@
 /*** Button Start ***/
 .btn {
     font-weight: 600;
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .btn-square {
@@ -166,7 +165,6 @@
     border: 1px solid var(--bs-primary) !important;
 }
 
-
 /*** Topbar Start ***/
 .fixed-top .container {
     transition: 0.5s;
@@ -187,18 +185,16 @@
     color: var(--bs-secondary) !important;
 }
 
-
 @media (max-width: 576px) {
     .topbar {
-        display: none;    
+        display: none;
     }
 }
 /*** Topbar End ***/
 
-
 /*** Navbar ***/
 .navbar-light .navbar-nav .nav-link {
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     position: relative;
     margin-right: 25px;
     padding: 35px 0;
@@ -206,7 +202,7 @@
     font-size: 16px;
     font-weight: 400;
     outline: none;
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .sticky-top.navbar-light .navbar-nav .nav-link {
@@ -221,7 +217,7 @@
 
 .navbar-light .navbar-brand img {
     max-height: 50px;
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .sticky-top.navbar-light .navbar-brand img {
@@ -246,7 +242,7 @@
         transform-origin: 0% 0%;
         border: 0;
         border-radius: 10px;
-        transition: .5s;
+        transition: 0.5s;
         opacity: 0;
     }
 }
@@ -260,7 +256,7 @@
     transform: rotateX(0deg);
     visibility: visible;
     background: var(--bs-light) !important;
-    transition: .5s;
+    transition: 0.5s;
     opacity: 1;
 }
 
@@ -272,13 +268,14 @@
 
     .navbar.navbar-expand-lg .navbar-toggler {
         padding: 10px 20px;
+        margin-top: 1rem;
         border: 1px solid var(--bs-primary);
         color: var(--bs-primary);
     }
 
     .navbar-light .navbar-collapse {
         margin-top: 15px;
-        border-top: 1px solid #DDDDDD;
+        border-top: 1px solid #dddddd;
     }
 
     .navbar-light .navbar-nav .nav-link,
@@ -299,10 +296,10 @@
         width: 100%;
         top: 0;
         left: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, .1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         z-index: 999;
     }
-    
+
     .sticky-top.navbar-light {
         position: fixed;
         background: var(--bs-light) !important;
@@ -316,7 +313,7 @@
         bottom: -1px;
         left: 50%;
         background: var(--bs-primary);
-        transition: .5s;
+        transition: 0.5s;
     }
 
     .navbar-light .navbar-nav .nav-link:hover::before,
@@ -331,7 +328,7 @@
 }
 /*** Carousel Hero Header Start ***/
 .header-carousel {
-    position: relative; 
+    position: relative;
 }
 
 .header-carousel .owl-nav .owl-prev {
@@ -382,14 +379,15 @@
 @media (max-width: 576px) {
     .header-carousel .owl-nav .owl-prev,
     .header-carousel .owl-nav .owl-next {
-        top: 630px;
-        transition: 0.5s;
+        display: none;
     }
 
-    .header-carousel .header-carousel-item .carousel-caption .carousel-caption-content {
+    .header-carousel
+        .header-carousel-item
+        .carousel-caption
+        .carousel-caption-content {
         width: 95% !important;
     }
- 
 }
 
 .header-carousel .header-carousel-item,
@@ -401,7 +399,6 @@
     display: block;
     object-fit: cover;
     transition: 0.5s;
-
 }
 
 @media (max-width: 992px) {
@@ -410,7 +407,6 @@
         margin-top: 0;
         transition: 0.5s;
     }
-
 }
 
 @media (min-width: 992px) {
@@ -430,20 +426,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, 0.5);
 }
 
-.header-carousel .header-carousel-item .carousel-caption .carousel-caption-content {
+.header-carousel
+    .header-carousel-item
+    .carousel-caption
+    .carousel-caption-content {
     position: relative;
     width: 75%;
-    
 }
 /*** Carousel Hero Header End ***/
 
-
 /*** Single Page Hero Header Start ***/
 .bg-breadcrumb {
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../img/carousel-2.jpg);
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url(../img/carousel-2.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -455,10 +453,9 @@
 }
 /*** Single Page Hero Header End ***/
 
-
 /*** Service Start ***/
 .service .service-item {
-    box-shadow: 0 0 45px rgba(0, 0, 0, .2) ;
+    box-shadow: 0 0 45px rgba(0, 0, 0, 0.2);
 }
 
 .service .service-item .service-img {
@@ -470,7 +467,7 @@
 .service .service-item .service-img img {
     transition: 0.5s;
     width: 100%;
-    height: 200px; 
+    height: 200px;
     object-fit: cover;
 }
 
@@ -484,7 +481,6 @@
     border-top-left-radius: 10px;
     transition: 0.5s;
     z-index: 5;
-    
 }
 
 .service .service-item:hover .service-img::before {
@@ -498,7 +494,6 @@
 .service .service-item .service-content {
     position: relative;
     z-index: 2;
-
 }
 
 .service .service-item .service-content::before {
@@ -524,7 +519,6 @@
     transition: 0.5s;
 }
 
-
 .service .service-item:hover .service-content .service-content-inner {
     position: relative;
     color: black;
@@ -546,18 +540,18 @@
 
 .about .about-img .about-img-inner {
     position: absolute;
-    left: 0; 
-    bottom: 0; 
-    border: 10px solid; 
-    border-color: var(--bs-white) var(--bs-white) var(--bs-white) var(--bs-white);
+    left: 0;
+    bottom: 0;
+    border: 10px solid;
+    border-color: var(--bs-white) var(--bs-white) var(--bs-white)
+        var(--bs-white);
     border-radius: 50%;
-
 }
 
 .about .about-img .about-experience {
     position: absolute;
-    top: 125px; 
-    left: -125px; 
+    top: 125px;
+    left: -125px;
     transform: rotate(-90deg);
     background: transparent;
     color: var(--bs-primary);
@@ -576,7 +570,6 @@
     border-radius: 10px;
     background: var(--bs-light);
     transition: 0.5s;
-
 }
 
 .feature .feature-item::before {
@@ -617,10 +610,13 @@
 }
 /*** Feature End ***/
 
-
 /*** Appointment Start ***/
 .appointment {
-    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(../img/carousel-2.jpg);
+    background: linear-gradient(
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.9)
+        ),
+        url(../img/carousel-2.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -656,8 +652,6 @@
     height: 44px;
     border-radius: 50%;
     transition: 0.5s;
-    
-
 }
 
 .video .btn-play:before {
@@ -746,7 +740,6 @@
 /*** Youtube Video End ***/
 /*** Appointment End ***/
 
-
 /*** Team Start ***/
 .team .team-item .team-img {
     position: relative;
@@ -754,11 +747,10 @@
 }
 
 .team-img img {
-    height: 300px; 
-    width: 100%; 
-    object-fit: cover; 
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
 }
-
 
 .team .team-item .team-img::before {
     position: absolute;
@@ -785,7 +777,7 @@
 }
 
 .team .team-item:hover .team-img::before {
-    background: rgba(21, 185, 217, .3);
+    background: rgba(21, 185, 217, 0.3);
 }
 
 .team .team-item .team-content {
@@ -808,10 +800,13 @@
 }
 /*** Team End ***/
 
-
 /*** testimonial Start ***/
 .testimonial {
-    background: linear-gradient(rgba(21, 185, 217, 0.9), rgba(21, 185, 217, 0.9)), url(../img/carousel-1.jpg);
+    background: linear-gradient(
+            rgba(21, 185, 217, 0.9),
+            rgba(21, 185, 217, 0.9)
+        ),
+        url(../img/carousel-1.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -872,13 +867,11 @@
     transition: 0.5s;
 }
 
-
 .testimonial .testimonial-carousel .owl-nav .owl-prev:hover,
 .testimonial .testimonial-carousel .owl-nav .owl-next:hover {
     box-shadow: inset 100px 0 0 0 var(--bs-primary) !important;
     color: var(--bs-white) !important;
 }
-
 
 @media (max-width: 900px) {
     .testimonial .testimonial-carousel .owl-nav .owl-prev {
@@ -890,7 +883,6 @@
         margin-top: -190px;
         margin-right: 40px;
     }
-    
 }
 
 .testimonial-carousel .owl-dots {
@@ -946,11 +938,14 @@
 }
 
 @media (min-width: 900px) {
-    .testimonial .testimonial-carousel .testimonial-item .testimonial-inner p.fs-7 {
+    .testimonial
+        .testimonial-carousel
+        .testimonial-item
+        .testimonial-inner
+        p.fs-7 {
         font-size: 20px;
     }
 }
-
 
 /* Testimonial Section Title Start */
 .testimonial .section-title {
@@ -1022,7 +1017,6 @@
 }
 /*** Testimonial End ***/
 
-
 /*** Blog Start ***/
 .blog .blog-item .blog-img {
     position: relative;
@@ -1052,7 +1046,7 @@
 }
 
 .blog .blog-item:hover .blog-img::after {
-    background: rgba(21, 185, 217, .5);
+    background: rgba(21, 185, 217, 0.5);
 }
 
 .blog .blog-item .blog-centent {
@@ -1064,16 +1058,15 @@
 }
 /*** Blog End ***/
 
-
 /*** Contact Start ***/
 .contact {
-    background: linear-gradient(rgba(21, 217, 70, 0.9), rgba(21, 185, 217, 0.9)), url(../img/carousel-1.jpg);
+    background: linear-gradient(rgba(21, 217, 70, 0.9), rgba(21, 185, 217, 0.9)),
+        url(../img/carousel-1.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
 }
-
 
 .contact .contact-form .btn.btn-light {
     box-shadow: inset 0 0 0 0 var(--bs-primary);
@@ -1089,8 +1082,6 @@
 .contact .contact-form .form-floating label {
     color: var(--bs-light);
 }
-
-
 
 /* Testimonial Section Title Start */
 .contact .section-title {
@@ -1162,10 +1153,10 @@
 }
 /*** Contact End ***/
 
-
 /*** Footer Start ***/
 .footer {
-    background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(../img/carousel-2.jpg);
+    background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+        url(../img/carousel-2.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -1191,4 +1182,9 @@
 .copyright {
     background: var(--bs-dark) !important;
 }
+
+.navbar .nav-item.profile-dropdown:hover .dropdown-menu {
+    margin-left: -10rem !important;
+}
+
 /*** copyright end ***/

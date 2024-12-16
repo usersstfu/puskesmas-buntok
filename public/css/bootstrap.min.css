@@ -6840,7 +6840,7 @@ fieldset:disabled .btn {
     word-break: break-word !important;
 }
 .text-primary {
-    color: #28a745 !important;
+    color: #28a745;
 }
 .text-secondary {
     color: #efa286 !important;
@@ -10080,5 +10080,61 @@ fieldset:disabled .btn {
     }
     .d-print-none {
         display: none !important;
+    }
+}
+
+@media screen and (max-width: 578px) {
+    .profile-dropdown .dropdown-menu {
+        display: block;
+        position: static;
+        transform: none;
+        visibility: visible;
+        opacity: 1;
+        margin-top: 0;
+    }
+
+    .profile-dropdown .nav-link.nav-icon {
+        pointer-events: none; /* Mencegah klik pada ikon profil */
+    }
+    
+    .profile-dropdown .nav-link.nav-icon img {
+        display: none; /* Menyembunyikan gambar profil */
+    }
+    
+    .section-title .sub-style::before,
+    .section-title .sub-style::after,
+    .sub-title::before,
+    .sub-title::after {
+        content: none !important;
+    }
+
+    .navbar-brand h1 {
+        font-size: 19px;
+        padding-top: 1rem;
+    }
+}
+
+@media screen and (max-width: 820px) {
+    .profile-dropdown .dropdown-menu {
+        display: block;
+        position: static;
+        transform: none;
+        visibility: visible;
+        opacity: 1;
+        margin-top: 0;
+    }
+
+    .profile-dropdown .nav-link.nav-icon {
+        pointer-events: none; /* Mencegah klik pada ikon profil */
+    }
+    
+    .profile-dropdown .nav-link.nav-icon img {
+        display: none; /* Menyembunyikan gambar profil */
+    }
+    
+    .navbar  {
+        display: flex;
+        justify-content: start;
+        column-gap: 2rem;
     }
 }

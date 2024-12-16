@@ -70,12 +70,14 @@ class LihatAntrianController extends Controller
         $today = Carbon::today()->toDateString();
         $queues = NomorAntrian::where('ruangan', $room)
             ->whereDate('created_at', $today)
+            ->orderByRaw("CASE WHEN status = 'sudah_dilayani' THEN 1 ELSE 0 END")
+            ->orderBy('status_prioritas', 'desc')
+            ->orderBy('nomor')
             ->get();
-
+    
         return response()->json($queues);
     }
-
-
+    
     public function getWaitList(Request $request)
     {
         $room = $request->input('room');

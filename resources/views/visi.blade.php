@@ -57,12 +57,12 @@
 
     <div class="container-fluid position-relative p-0">
         <nav class="navbar navbar-expand-lg navbar-light bg-white px-4 px-lg-5 py-3 py-lg-0">
-            <a href="/" class="navbar-brand p-0">
-                <h1 class="text-primary m-0"><i class="fas fa-star-of-life me-3"></i>Puskesmas Buntok</h1>
-            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
             </button>
+            <a href="/" class="navbar-brand p-0">
+                <h1 class="text-primary m-0"><i class="fas fa-star-of-life me-3"></i>Puskesmas Buntok</h1>
+            </a>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav ms-auto py-0">
                     <li class="nav-item">
@@ -86,38 +86,38 @@
                 <a href="/antrian"
                     class="btn btn-primary rounded-pill text-white py-2 px-4 flex-wrap flex-sm-shrink-0">Sistem
                     Antrian</a>
+                @if (Auth::check())
+                    <div class="nav-item jojo profile-dropdown">
+                        <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                            <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
+                                height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                            <div class="message-body">
+                                <p class="dropdown-item">Halo, {{ Auth::user()->name }}</p>
+                                <a href="/profile" class="dropdown-item">My Profile</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="nav-item jojo profile-dropdown">
+                        <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
+                            <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
+                                height="35" class="rounded-circle">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                            <div class="message-body">
+                                <a href="/masuk" class="dropdown-item">Login</a>
+                                <a href="/daftar" class="dropdown-item">Daftar Akun</a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
-            @if (Auth::check())
-                <div class="nav-item">
-                    <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                        <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
-                            height="35" class="rounded-circle">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                        <div class="message-body">
-                            <p class="dropdown-item">Halo, {{ Auth::user()->name }}</p>
-                            <a href="/profile" class="dropdown-item">My Profile</a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="dropdown-item">Logout</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <div class="nav-item">
-                    <a class="nav-link nav-icon" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                        <img src="../admin/images/profile/empty-profile.png" alt="" width="35"
-                            height="35" class="rounded-circle">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                        <div class="message-body">
-                            <a href="/masuk" class="dropdown-item">Login</a>
-                            <a href="/daftar" class="dropdown-item">Daftar Akun</a>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </nav>
     </div>
 
@@ -136,23 +136,32 @@
     <div class="container py-5">
         <div class="row">
             <div class="col-md-12 text-center mb-5">
-                <h2 class="mb-3 wow fadeInDown" data-wow-delay="0.1s">Selamat Datang di Halaman Visi dan Misi UPTD Puskesmas Buntok</h2>
-                <p class="rata wow fadeInDown" data-wow-delay="0.3s">UPT Puskesmas Buntok adalah suatu kesatuan organisasi kesehatan yang langsung memberikan pelayanan kesehatan secara menyeluruh dan 
-                    terintegrasi kepada masyarakat di wilayah kerja Kecamatan Dusun Selatan dimana UPT Puskesmas Puskesmas Buntok mengacu pada apa yang 
-                    diharapkan Kementerian Kesehatan RI dan Dinas Kesehatan Kabupaten Barito Selatan adalah <strong>“pelayanan yang meliputi pelayanan promotive 
-                    (Peningkatan Kesehatan), pelayanan preventive (Pencegahan), pelayanan kuratif (Pengobatan), dan rehabilitatif (Pemulihan Kesehatan) 
-                    yang ditujukan kepada masyarakat Indonesia tanpa membedakan jenis kelamin, usia, suku, kaya, miskin sejak pembuahan sampai tutup usia“</strong>. 
-                    Untuk mewujudkan hal tersebut maka disepakatilah Visi, Misi dan motto Puskesmas Buntok yang diperbaharui oleh <strong>Maya Evana, A.Md.Keb</strong> yang 
-                    menjadi Kepala Puskesmas Buntok periode Januari 2019 – Desember 2019, menyesuaikan visi dan misi Dinas Kesehatan Kabupaten Barito Selatan.</p>
-                    
+                <h2 class="mb-3 wow fadeInDown" data-wow-delay="0.1s">Selamat Datang di Halaman Visi dan Misi UPTD
+                    Puskesmas Buntok</h2>
+                <p class="rata wow fadeInDown" data-wow-delay="0.3s">UPT Puskesmas Buntok adalah suatu kesatuan
+                    organisasi kesehatan yang langsung memberikan pelayanan kesehatan secara menyeluruh dan
+                    terintegrasi kepada masyarakat di wilayah kerja Kecamatan Dusun Selatan dimana UPT Puskesmas
+                    Puskesmas Buntok mengacu pada apa yang
+                    diharapkan Kementerian Kesehatan RI dan Dinas Kesehatan Kabupaten Barito Selatan adalah
+                    <strong>“pelayanan yang meliputi pelayanan promotive
+                        (Peningkatan Kesehatan), pelayanan preventive (Pencegahan), pelayanan kuratif (Pengobatan), dan
+                        rehabilitatif (Pemulihan Kesehatan)
+                        yang ditujukan kepada masyarakat Indonesia tanpa membedakan jenis kelamin, usia, suku, kaya,
+                        miskin sejak pembuahan sampai tutup usia“</strong>.
+                    Untuk mewujudkan hal tersebut maka disepakatilah Visi, Misi dan motto Puskesmas Buntok yang
+                    diperbaharui oleh <strong>Maya Evana, A.Md.Keb</strong> yang
+                    menjadi Kepala Puskesmas Buntok periode Januari 2019 – Desember 2019, menyesuaikan visi dan misi
+                    Dinas Kesehatan Kabupaten Barito Selatan.</p>
+
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
                 <h3 class="mb-3 wow fadeInDown" data-wow-delay="0.1s">Visi</h3>
-                <p class="rata wow fadeInDown" data-wow-delay="0.3s">Terwujudnya pelayanan kesehatan yang prima, optimal, dan bermutu, untuk 
+                <p class="rata wow fadeInDown" data-wow-delay="0.3s">Terwujudnya pelayanan kesehatan yang prima,
+                    optimal, dan bermutu, untuk
                     menjadikan masyarakat wilayah kerja UPT Puskesmas Buntok yang sehat dan Mandiri
-                    </p>
+                </p>
             </div>
             <div class="col-md-6">
                 <h3 class="mb-3 wow fadeInDown" data-wow-delay="0.1s">Misi</h3>
